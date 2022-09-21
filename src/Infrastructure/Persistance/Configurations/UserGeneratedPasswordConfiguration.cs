@@ -10,15 +10,20 @@ internal sealed class UserGeneratedPasswordConfiguration : IEntityTypeConfigurat
     {
         builder.ToTable("UserGeneratedPasswords");
 
-        builder.HasKey(t => t.Id);
+        builder.HasKey(p => p.Id);
 
-        builder.Property(t => t.UserId)
+        builder.Property(p => p.UserId)
+            .HasMaxLength(20)
             .IsRequired();
 
-        builder.Property(t => t.Password)
+        builder.Property(p => p.Password)
+            .HasMaxLength(20)
             .IsRequired();
 
-        builder.Property(t => t.ExpiersOn)
+        builder.Property(p => p.ExpiersAt)
+            .IsRequired();
+
+        builder.Property(p => p.CreatedAt)
             .IsRequired();
     }
 }

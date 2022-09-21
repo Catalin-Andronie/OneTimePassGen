@@ -11,7 +11,7 @@ using OneTimePassGen.Infrastructure.Persistance;
 namespace OneTimePassGen.Infrastructure.Persistance.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220921193323_AddUserGeneratedPasswordsTable")]
+    [Migration("20220921220535_AddUserGeneratedPasswordsTable")]
     partial class AddUserGeneratedPasswordsTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -298,15 +298,20 @@ namespace OneTimePassGen.Infrastructure.Persistance.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("ExpiersOn")
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("ExpiersAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Password")
                         .IsRequired()
+                        .HasMaxLength(20)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("UserId")
                         .IsRequired()
+                        .HasMaxLength(20)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

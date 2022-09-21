@@ -26,5 +26,10 @@ public sealed class UserGeneratedPassword
     /// <remarks>
     ///     A value in the feature means the generated password is not expierd.
     /// </remarks>
-    public DateTimeOffset ExpiersOn { get; set; }
+    public DateTimeOffset ExpiersAt { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the date and time, in UTC, when the entry was created.
+    /// </summary>
+    public DateTimeOffset CreatedAt { get; set; }
 }
