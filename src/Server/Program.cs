@@ -7,8 +7,12 @@ using OneTimePassGen.Models;
 
 namespace OneTimePassGen;
 
-public class Program
+internal sealed class Program
 {
+    private Program()
+    {
+    }
+
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
