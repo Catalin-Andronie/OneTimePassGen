@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
+using NSwag;
+using NSwag.Generation.Processors.Security;
 using OneTimePassGen.Infrastructure.Identity;
 using OneTimePassGen.Infrastructure.Persistance;
 
@@ -35,12 +37,45 @@ internal sealed class Program
         builder.Services.AddControllersWithViews();
         builder.Services.AddRazorPages();
 
+        // Register NSwag Swagger services
+        builder.Services.AddSwaggerDocument(config =>
+        {
+            // Configure swagger document
+            config.PostProcess = document =>
+            {
+                document.Info.Version = "v1";
+                document.Info.Title = "One-time password generator - API";
+                document.Info.Contact = new NSwag.OpenApiContact
+                {
+                    Name = "One-time password generator",
+                    // TODO: Email = "support@company.com",
+                    // TODO: Url = "https://support.com/contact",
+                };
+            };
+
+            // Configure authentication
+            const string securityType = "JWT";
+            config.AddSecurity(securityType, Enumerable.Empty<string>(), new OpenApiSecurityScheme
+            {
+                Type = OpenApiSecuritySchemeType.ApiKey,
+                Name = "Authorization",
+                In = OpenApiSecurityApiKeyLocation.Header,
+                Description = "Type as value: Bearer {your JWT token}.",
+            });
+
+            config.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor(securityType));
+        });
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
             app.UseMigrationsEndPoint();
+
+            // Register the NSwag Swagger generator and the NSwag Swagger UI middlewares
+            app.UseOpenApi();
+            app.UseSwaggerUi3();
         }
         else
         {
