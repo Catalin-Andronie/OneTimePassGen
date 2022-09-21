@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
-using OneTimePassGen.Data;
-using OneTimePassGen.Models;
+using OneTimePassGen.Infrastructure.Identity;
+using OneTimePassGen.Infrastructure.Persistance;
 
 namespace OneTimePassGen;
 

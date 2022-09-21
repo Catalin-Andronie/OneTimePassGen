@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace OneTimePassGen.Data.Migrations
+namespace OneTimePassGen.Infrastructure.Persistance.Migrations
 {
     public partial class CreateIdentitySchema : Migration
     {

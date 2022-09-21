@@ -2,15 +2,14 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Duende.IdentityServer.EntityFramework.Options;
-using OneTimePassGen.Models;
+using OneTimePassGen.Infrastructure.Identity;
 
-namespace OneTimePassGen.Data;
+namespace OneTimePassGen.Infrastructure.Persistance;
 
 public class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>
 {
     public ApplicationDbContext(DbContextOptions options, IOptions<OperationalStoreOptions> operationalStoreOptions)
         : base(options, operationalStoreOptions)
     {
-        
     }
 }
