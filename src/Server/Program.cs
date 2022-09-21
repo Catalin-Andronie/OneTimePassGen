@@ -15,7 +15,7 @@ internal sealed class Program
     {
     }
 
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -98,6 +98,27 @@ internal sealed class Program
 
         app.MapFallbackToFile("index.html");
 
+        // Before starting the application we want to ensure the database is up and running.
+        await ApplyDatabaseMigrations(app.Services).ConfigureAwait(false);
+
         app.Run();
+    }
+
+    private static async Task ApplyDatabaseMigrations(IServiceProvider serviceProvider)
+    {
+        await using var scope = serviceProvider.CreateAsyncScope();
+
+        using var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        try
+        {
+            // NOTE: We want to ensure that all migrations are added into the
+            //       database, we call `MigrateAsync` method to run our custom
+            //       migrations.
+            await dbContext.Database.MigrateAsync().ConfigureAwait(false);
+        }
+        catch
+        {
+            // ignore
+        }
     }
 }
