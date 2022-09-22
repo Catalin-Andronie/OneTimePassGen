@@ -111,10 +111,17 @@ internal sealed class Program
         using var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         try
         {
-            // NOTE: We want to ensure that all migrations are added into the
-            //       database, we call `MigrateAsync` method to run our custom
-            //       migrations.
-            await dbContext.Database.MigrateAsync().ConfigureAwait(false);
+            if (dbContext.Database.IsSqlite())
+            {
+                await dbContext.Database.EnsureCreatedAsync().ConfigureAwait(false);
+            }
+            else
+            {
+                // NOTE: We want to ensure that all migrations are added into the
+                //       database, we call `MigrateAsync` method to run our custom
+                //       migrations.
+                await dbContext.Database.MigrateAsync().ConfigureAwait(false);
+            }
         }
         catch
         {
