@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace OneTimePassGen.Infrastructure.Persistance;
 
-public class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>
+public sealed class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>
 {
     public ApplicationDbContext(DbContextOptions options, IOptions<OperationalStoreOptions> operationalStoreOptions)
         : base(options, operationalStoreOptions)
