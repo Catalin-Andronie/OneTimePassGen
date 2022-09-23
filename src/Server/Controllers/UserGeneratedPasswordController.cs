@@ -40,6 +40,7 @@ public sealed class UserGeneratedPasswordController : ControllerBase
                         ExpiersAt = p.ExpiersAt,
                         CreatedAt = p.CreatedAt
                     })
+                    .OrderByDescending(p => p.CreatedAt)
                     .ToListAsync(cancellationToken)
                     .ConfigureAwait(false);
     }
