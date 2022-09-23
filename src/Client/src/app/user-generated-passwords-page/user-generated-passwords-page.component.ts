@@ -15,9 +15,14 @@ export class UserGeneratedPasswordsPageComponent implements OnInit {
   }
 
   public ngOnInit(): void {
-    this._http.get<UserGeneratedPassword[]>(this._baseUrl + 'api/user-generated-passwords')
+    this._fetchUserGeneratedPasswords();
+  }
+
+  private _fetchUserGeneratedPasswords(): void {
+    const url = this._baseUrl + 'api/user-generated-passwords';
+    this._http.get<UserGeneratedPassword[]>(url)
       .subscribe({
-        next: (result) => this.userGeneratedPasswords = result,
+        next: (result) => this.userGeneratedPasswords = result || [],
         error: (e) => console.error(e)
       });
   }
