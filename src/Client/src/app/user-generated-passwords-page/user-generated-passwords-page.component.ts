@@ -9,7 +9,7 @@ export class UserGeneratedPasswordsPageComponent implements OnInit {
   public userGeneratedPasswords: UserGeneratedPassword[] = [];
 
   public constructor(
-    private _http: HttpClient,
+    private _httpClient: HttpClient,
     @Inject('BASE_URL') private _baseUrl: string)
   {
   }
@@ -20,7 +20,7 @@ export class UserGeneratedPasswordsPageComponent implements OnInit {
 
   private _fetchUserGeneratedPasswords(): void {
     const url = this._baseUrl + 'api/user-generated-passwords';
-    this._http.get<UserGeneratedPassword[]>(url)
+    this._httpClient.get<UserGeneratedPassword[]>(url)
       .subscribe({
         next: (result) => this.userGeneratedPasswords = result || [],
         error: (e) => console.error(e)
