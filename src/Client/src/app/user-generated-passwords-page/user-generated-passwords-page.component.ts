@@ -22,4 +22,5 @@ interface UserGeneratedPassword {
   userId: string;
   password: string;
   expiersAt: Date;
+  createdAt: Date;
 }
