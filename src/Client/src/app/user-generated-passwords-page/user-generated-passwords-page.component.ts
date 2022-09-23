@@ -8,10 +8,11 @@ import { HttpClient } from '@angular/common/http';
 export class UserGeneratedPasswordsPageComponent implements OnInit {
   private _isLoading: boolean = false;
   private _isCreatingNewPassword: boolean = false;
+  private _userGeneratedPasswords: UserGeneratedPassword[] = [];
 
   public get isLoading(): boolean { return this._isLoading; }
   public get isCreatingNewPassword(): boolean { return this._isCreatingNewPassword; }
-  public userGeneratedPasswords: UserGeneratedPassword[] = [];
+  public get userGeneratedPasswords(): UserGeneratedPassword[] { return this._userGeneratedPasswords; };
 
   public constructor(
     private _httpClient: HttpClient,
@@ -32,7 +33,7 @@ export class UserGeneratedPasswordsPageComponent implements OnInit {
     const url = this._baseUrl + 'api/user-generated-passwords';
     this._httpClient.get<UserGeneratedPassword[]>(url)
       .subscribe({
-        next: (result) => this.userGeneratedPasswords = result || [],
+        next: (result) => this._userGeneratedPasswords = result || [],
         error: (e) => console.error(e),
         complete: () => this._isLoading = false
       });
@@ -44,7 +45,7 @@ export class UserGeneratedPasswordsPageComponent implements OnInit {
     const payload = {};
     this._httpClient.post<UserGeneratedPassword>(url, payload)
       .subscribe({
-        next: (result) => this.userGeneratedPasswords = [result].concat(this.userGeneratedPasswords),
+        next: (result) => this._userGeneratedPasswords = [result].concat(this._userGeneratedPasswords),
         error: (e) => console.error(e),
         complete: () => this._isCreatingNewPassword = false
       });
