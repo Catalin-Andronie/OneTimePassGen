@@ -5,6 +5,7 @@ using Duende.IdentityServer.EntityFramework.Options;
 using OneTimePassGen.Infrastructure.Identity;
 using OneTimePassGen.Domain.Entities;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace OneTimePassGen.Infrastructure.Persistance;
 
@@ -24,5 +25,11 @@ public sealed class ApplicationDbContext : ApiAuthorizationDbContext<Application
     {
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+        if (Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+        {
+            builder.UseValueConverterForType<DateTimeOffset>(new DateTimeOffsetToBinaryConverter());
+            builder.UseValueConverterForType<DateTimeOffset?>(new DateTimeOffsetToBinaryConverter());
+        }
     }
 }
