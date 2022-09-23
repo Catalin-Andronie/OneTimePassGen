@@ -1,5 +1,5 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+import { UserGeneratedPasswordService } from '../services/UserGeneratedPasswordService';
 
 @Component({
   selector: 'app-user-generated-passwords-page',
@@ -15,9 +15,7 @@ export class UserGeneratedPasswordsPageComponent implements OnInit {
   public get userGeneratedPasswords(): UserGeneratedPassword[] { return this._userGeneratedPasswords; };
 
   public constructor(
-    private _httpClient: HttpClient,
-    @Inject('BASE_URL') private _baseUrl: string)
-  {
+    private _userGeneratedPasswordService: UserGeneratedPasswordService) {
   }
 
   public ngOnInit(): void {
@@ -30,8 +28,7 @@ export class UserGeneratedPasswordsPageComponent implements OnInit {
 
   private _fetchUserGeneratedPasswords(): void {
     this._isLoading = true;
-    const url = this._baseUrl + 'api/user-generated-passwords';
-    this._httpClient.get<UserGeneratedPassword[]>(url)
+    this._userGeneratedPasswordService.fetchUserGeneratedPasswords()
       .subscribe({
         next: (result) => this._userGeneratedPasswords = result || [],
         error: (e) => console.error(e),
@@ -41,9 +38,7 @@ export class UserGeneratedPasswordsPageComponent implements OnInit {
 
   private _createUserGeneratedPassword(): void {
     this._isCreatingNewPassword = true;
-    const url = this._baseUrl + 'api/user-generated-passwords';
-    const payload = {};
-    this._httpClient.post<UserGeneratedPassword>(url, payload)
+    this._userGeneratedPasswordService.createUserGeneratedPassword()
       .subscribe({
         next: (result) => this._userGeneratedPasswords = [result].concat(this._userGeneratedPasswords),
         error: (e) => console.error(e),
@@ -52,7 +47,7 @@ export class UserGeneratedPasswordsPageComponent implements OnInit {
   }
 }
 
-interface UserGeneratedPassword {
+export interface UserGeneratedPassword {
   id: string;
   userId: string;
   password: string;

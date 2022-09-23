@@ -13,6 +13,7 @@ import { ApiAuthorizationModule } from 'src/api-authorization/api-authorization.
 import { AuthorizeGuard } from 'src/api-authorization/authorize.guard';
 import { AuthorizeInterceptor } from 'src/api-authorization/authorize.interceptor';
 import { UserGeneratedPasswordsPageComponent } from './user-generated-passwords-page/user-generated-passwords-page.component';
+import { UserGeneratedPasswordService } from './services/UserGeneratedPasswordService';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import { UserGeneratedPasswordsPageComponent } from './user-generated-passwords-
     ])
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: AuthorizeInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: AuthorizeInterceptor, multi: true },
+    UserGeneratedPasswordService
   ],
   bootstrap: [AppComponent]
 })
