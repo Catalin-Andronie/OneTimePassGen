@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { UserGeneratedPasswordService } from '../services/UserGeneratedPasswordService';
+import { UserGeneratedPassword } from '../models/UserGeneratedPassword';
 
 @Component({
   selector: 'app-user-generated-passwords-page',
@@ -45,12 +46,4 @@ export class UserGeneratedPasswordsPageComponent implements OnInit {
         complete: () => this._isCreatingNewPassword = false
       });
   }
-}
-
-export interface UserGeneratedPassword {
-  id: string;
-  userId: string;
-  password: string;
-  expiersAt: Date;
-  createdAt: Date;
 }

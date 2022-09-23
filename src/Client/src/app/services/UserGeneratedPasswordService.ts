@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/internal/Observable';
-import { UserGeneratedPassword } from '../user-generated-passwords-page/user-generated-passwords-page.component';
+import { UserGeneratedPassword } from "../models/UserGeneratedPassword";
 
 @Injectable()
 export class UserGeneratedPasswordService {
