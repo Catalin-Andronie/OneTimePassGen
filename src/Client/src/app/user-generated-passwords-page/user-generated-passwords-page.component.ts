@@ -8,14 +8,18 @@ import { Subscription } from 'rxjs/internal/Subscription';
   templateUrl: './user-generated-passwords-page.component.html'
 })
 export class UserGeneratedPasswordsPageComponent implements OnInit, OnDestroy {
-  private _isLoading: boolean = false;
-  private _isCreatingNewPassword: boolean = false;
   private _userGeneratedPasswords: UserGeneratedPassword[] = [];
   private _fetchUserGeneratedPasswordsSubscription: Subscription | undefined;
   private _createUserGeneratedPasswordSubscription: Subscription | undefined;
 
-  public get isLoading(): boolean { return this._isLoading; }
-  public get isCreatingNewPassword(): boolean { return this._isCreatingNewPassword; }
+  public get isLoading(): boolean {
+    return !!this._fetchUserGeneratedPasswordsSubscription && !this._fetchUserGeneratedPasswordsSubscription.closed;
+  }
+
+  public get isCreatingNewPassword(): boolean {
+    return !!this._createUserGeneratedPasswordSubscription && !this._createUserGeneratedPasswordSubscription.closed;
+  }
+
   public get userGeneratedPasswords(): UserGeneratedPassword[] { return this._userGeneratedPasswords; };
 
   public constructor(
@@ -36,26 +40,22 @@ export class UserGeneratedPasswordsPageComponent implements OnInit, OnDestroy {
   }
 
   private _fetchUserGeneratedPasswords(): void {
-    this._isLoading = true;
     this._fetchUserGeneratedPasswordsSubscription?.unsubscribe()
 
     this._fetchUserGeneratedPasswordsSubscription = this._userGeneratedPasswordService.fetchUserGeneratedPasswords()
       .subscribe({
         next: (result) => this._userGeneratedPasswords = result || [],
         error: (e) => console.error(e),
-        complete: () => this._isLoading = false
       });
   }
 
   private _createUserGeneratedPassword(): void {
-    this._isCreatingNewPassword = true;
     this._createUserGeneratedPasswordSubscription?.unsubscribe()
 
     this._createUserGeneratedPasswordSubscription = this._userGeneratedPasswordService.createUserGeneratedPassword()
       .subscribe({
         next: (result) => this._userGeneratedPasswords = [result].concat(this._userGeneratedPasswords),
         error: (e) => console.error(e),
-        complete: () => this._isCreatingNewPassword = false
       });
   }
 }
