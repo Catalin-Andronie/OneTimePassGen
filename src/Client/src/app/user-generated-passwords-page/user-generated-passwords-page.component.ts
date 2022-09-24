@@ -27,10 +27,6 @@ export class UserGeneratedPasswordsPageComponent implements OnInit, OnDestroy {
       return this._userGeneratedPasswords;
   };
 
-  public get displayTable(): boolean {
-    return this.userGeneratedPasswords.length > 0;
-  }
-
   public displayExpiredUserGeneratedPasswords: boolean = true;
 
   public constructor(
