@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 
 using MediatR;
 
@@ -14,6 +14,7 @@ public static class DependencyInjection
     {
         services.AddMediatR(Assembly.GetExecutingAssembly());
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehavior<,>));
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehavior<,>));
 
         return services;
     }
