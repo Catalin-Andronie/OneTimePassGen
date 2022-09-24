@@ -37,7 +37,6 @@ export class UserGeneratedPasswordMapper {
 
     const result = new UserGeneratedPasswordModel(
       source.id,
-      source.userId,
       source.password,
       source.expiresAt,
       source.createdAt

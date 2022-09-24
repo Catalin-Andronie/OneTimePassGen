@@ -7,12 +7,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Options;
 
+using OneTimePassGen.Application.Common.Interfaces;
 using OneTimePassGen.Domain.Entities;
 using OneTimePassGen.Infrastructure.Identity;
 
 namespace OneTimePassGen.Infrastructure.Persistance;
 
-public sealed class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>
+public sealed class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>, IApplicationDbContext
 {
     public ApplicationDbContext(DbContextOptions options, IOptions<OperationalStoreOptions> operationalStoreOptions)
         : base(options, operationalStoreOptions)

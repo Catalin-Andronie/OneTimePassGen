@@ -1,23 +1,17 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace OneTimePassGen.Server.Models;
+namespace OneTimePassGen.Application.UserGeneratedPasswords.Queries.GetUserGeneratedPasswords;
 
 /// <summary>
 ///     Represents a generated password that a user possesses.
 /// </summary>
-public sealed class GeneratedPasswordDto
+public sealed class UserGeneratedPasswordDto
 {
     /// <summary>
     ///     Gets or sets the identifier for this generated password.
     /// </summary>
     [Required]
     public Guid Id { get; set; }
-
-    /// <summary>
-    ///     Gets or sets the primary key of the user that is linked to this generated password.
-    /// </summary>
-    [Required]
-    public string UserId { get; set; } = string.Empty;
 
     /// <summary>
     ///     Gets or sets the generated password as plain text.

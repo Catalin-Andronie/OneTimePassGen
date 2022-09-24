@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 using OneTimePassGen.Application.Common.Interfaces;
+using OneTimePassGen.Application.UserGeneratedPasswords.Queries.GetUserGeneratedPasswords;
 using OneTimePassGen.Domain.Entities;
 using OneTimePassGen.Infrastructure.Persistance;
-using OneTimePassGen.Server.Models;
 
 namespace OneTimePassGen.Server.Controllers;
 
@@ -13,7 +13,7 @@ namespace OneTimePassGen.Server.Controllers;
 [ApiController]
 [Route("api/user-generated-passwords")]
 [Produces("application/json")]
-public sealed class UserGeneratedPasswordController : ControllerBase
+public sealed class UserGeneratedPasswordController : ApiControllerBase
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly ICurrentUserService _currentUserService;
@@ -25,53 +25,32 @@ public sealed class UserGeneratedPasswordController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(IList<GeneratedPasswordDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IList<UserGeneratedPasswordDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IList<GeneratedPasswordDto>> GetUserPasswordsAsync(
-        [FromQuery(Name = "includeExpiredPasswords")] bool includeExpiredPasswords = false,
+    public async Task<IList<UserGeneratedPasswordDto>> GetUserPasswordsAsync(
+        [FromQuery] GetUserGeneratedPasswordsQuery query,
         CancellationToken cancellationToken = default)
     {
-        string currentUserId = _currentUserService.UserId ?? throw new UnauthorizedAccessException("User unauthorized to execute this action.");
-        var query = _dbContext.UserGeneratedPasswords.Where(p => p.UserId == currentUserId);
-
-        if (!includeExpiredPasswords)
-        {
-            var now = DateTimeOffset.Now;
-            query = query.Where(p => p.ExpiersAt > now);
-        }
-
-        return await query
-                    .Select(p => new GeneratedPasswordDto
-                    {
-                        Id = p.Id,
-                        UserId = p.UserId,
-                        Password = p.Password,
-                        ExpiresAt = p.ExpiersAt,
-                        CreatedAt = p.CreatedAt
-                    })
-                    .OrderByDescending(p => p.CreatedAt)
-                    .ToListAsync(cancellationToken)
-                    .ConfigureAwait(false);
+        return await Mediator.Send(query, cancellationToken);
     }
 
     [HttpGet("{userPasswordId}")]
-    [ProducesResponseType(typeof(IList<GeneratedPasswordDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IList<UserGeneratedPasswordDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GeneratedPasswordDto>> GetUserPasswordAsync(Guid userPasswordId, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<UserGeneratedPasswordDto>> GetUserPasswordAsync(Guid userPasswordId, CancellationToken cancellationToken = default)
     {
         string currentUserId = _currentUserService.UserId ?? throw new UnauthorizedAccessException("User unauthorized to execute this action.");
         var generatedPassword = await _dbContext.UserGeneratedPasswords
                                             .Where(p => p.Id == userPasswordId && p.UserId == currentUserId)
-                                            .Select(p => new GeneratedPasswordDto
+                                            .Select(p => new UserGeneratedPasswordDto
                                             {
                                                 Id = p.Id,
-                                                UserId = p.UserId,
                                                 Password = p.Password,
                                                 ExpiresAt = p.ExpiersAt,
                                                 CreatedAt = p.CreatedAt
@@ -79,16 +58,16 @@ public sealed class UserGeneratedPasswordController : ControllerBase
                                             .SingleOrDefaultAsync(cancellationToken)
                                             .ConfigureAwait(false);
 
-        return generatedPassword ?? (ActionResult<GeneratedPasswordDto>)NotFound();
+        return generatedPassword ?? (ActionResult<UserGeneratedPasswordDto>)NotFound();
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(GeneratedPasswordDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(UserGeneratedPasswordDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GeneratedPasswordDto>> CreateUserPasswordAsync(CancellationToken cancellationToken = default)
+    public async Task<ActionResult<UserGeneratedPasswordDto>> CreateUserPasswordAsync(CancellationToken cancellationToken = default)
     {
         string currentUserId = _currentUserService.UserId ?? throw new UnauthorizedAccessException("User unauthorized to execute this action.");
         string passwordValue = Guid.NewGuid().ToString();
@@ -108,14 +87,13 @@ public sealed class UserGeneratedPasswordController : ControllerBase
         await _dbContext.UserGeneratedPasswords.AddAsync(generatedPassword, cancellationToken).ConfigureAwait(false);
         await _dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-        var generatedPasswordDto = new GeneratedPasswordDto
+        var userGeneratedPasswordDto = new UserGeneratedPasswordDto
         {
             Id = generatedPassword.Id,
-            UserId = generatedPassword.UserId,
             Password = generatedPassword.Password,
             ExpiresAt = generatedPassword.ExpiersAt,
             CreatedAt = generatedPassword.CreatedAt
         };
-        return CreatedAtAction(nameof(GetUserPasswordAsync), new { generatedPasswordDto.Id }, generatedPasswordDto);
+        return CreatedAtAction(nameof(GetUserPasswordAsync), new { userGeneratedPasswordDto.Id }, userGeneratedPasswordDto);
     }
 }

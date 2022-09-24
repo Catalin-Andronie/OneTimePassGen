@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using NSwag;
 using NSwag.Generation.Processors.Security;
 
+using OneTimePassGen.Application;
 using OneTimePassGen.Application.Common.Interfaces;
 using OneTimePassGen.Infrastructure;
 using OneTimePassGen.Infrastructure.Persistance;
@@ -15,6 +16,7 @@ internal static class ApplicationExtensions
     public static WebApplicationBuilder ConfigureApplicationServices(this WebApplicationBuilder builder)
     {
         // Add services to the container.
+        builder.Services.AddApplication();
         builder.Services.AddInfrastructure(builder.Configuration);
 
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();

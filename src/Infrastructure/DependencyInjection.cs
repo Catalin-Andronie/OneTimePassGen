@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
+using OneTimePassGen.Application.Common.Interfaces;
 using OneTimePassGen.Infrastructure.Identity;
 using OneTimePassGen.Infrastructure.Persistance;
 
@@ -30,5 +31,8 @@ public static class DependencyInjection
         services
             .AddAuthentication()
             .AddIdentityServerJwt();
+
+        services.AddScoped<IApplicationDbContext>(
+            provider => provider.GetRequiredService<ApplicationDbContext>());
     }
 }

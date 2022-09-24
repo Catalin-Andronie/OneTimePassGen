@@ -2,7 +2,6 @@ import { Observable } from "rxjs/internal/Observable";
 
 export class UserGeneratedPasswordModel {
   private _id: string;
-  private _userId: string;
   private _password: string;
   private _expiresAt: Date;
   private _createdAt: Date;
@@ -14,14 +13,12 @@ export class UserGeneratedPasswordModel {
 
   public constructor(
     id: string,
-    userId: string,
     password: string,
     expiresAt: Date,
     createdAt: Date
   ) {
 
     this._id = id;
-    this._userId = userId;
     this._password = password;
     this._expiresAt = expiresAt;
     this._createdAt = createdAt;
@@ -35,10 +32,6 @@ export class UserGeneratedPasswordModel {
 
   public get id(): string {
     return this._id;
-  }
-
-  public get userId(): string {
-    return this._userId;
   }
 
   public get password(): string {
