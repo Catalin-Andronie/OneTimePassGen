@@ -35,12 +35,13 @@ export class UserGeneratedPasswordMapper {
     if (!source.id)
       throw new Error('Value of "id" cannot be null or empty.');
 
-    const result = new UserGeneratedPasswordModel();
-    result.id = source.id;
-    result.userId = source.userId;
-    result.password = source.password;
-    result.expiersAt = source.expiersAt;
-    result.createdAt = source.createdAt;
+    const result = new UserGeneratedPasswordModel(
+      source.id,
+      source.userId,
+      source.password,
+      source.expiersAt,
+      source.createdAt
+    );
 
     return result;
   }
