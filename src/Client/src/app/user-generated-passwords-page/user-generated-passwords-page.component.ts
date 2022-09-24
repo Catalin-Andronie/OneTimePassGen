@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { UserGeneratedPasswordService } from '../services/UserGeneratedPasswordService';
-import { UserGeneratedPassword } from '../models/UserGeneratedPassword';
+import { UserGeneratedPasswordModel } from '../models/UserGeneratedPasswordModel';
 import { Subscription } from 'rxjs/internal/Subscription';
 
 @Component({
@@ -8,7 +8,7 @@ import { Subscription } from 'rxjs/internal/Subscription';
   templateUrl: './user-generated-passwords-page.component.html'
 })
 export class UserGeneratedPasswordsPageComponent implements OnInit, OnDestroy {
-  private _userGeneratedPasswords: UserGeneratedPassword[] = [];
+  private _userGeneratedPasswords: UserGeneratedPasswordModel[] = [];
   private _fetchUserGeneratedPasswordsSubscription: Subscription | undefined;
   private _createUserGeneratedPasswordSubscription: Subscription | undefined;
 
@@ -20,7 +20,7 @@ export class UserGeneratedPasswordsPageComponent implements OnInit, OnDestroy {
     return !!this._createUserGeneratedPasswordSubscription && !this._createUserGeneratedPasswordSubscription.closed;
   }
 
-  public get userGeneratedPasswords(): UserGeneratedPassword[] { return this._userGeneratedPasswords; };
+  public get userGeneratedPasswords(): UserGeneratedPasswordModel[] { return this._userGeneratedPasswords; };
 
   public get displayTable(): boolean {
     return this.userGeneratedPasswords.length > 0;

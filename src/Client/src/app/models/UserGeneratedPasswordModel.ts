@@ -1,4 +1,4 @@
-export interface UserGeneratedPassword {
+export interface UserGeneratedPasswordModel {
   id: string;
   userId: string;
   password: string;
