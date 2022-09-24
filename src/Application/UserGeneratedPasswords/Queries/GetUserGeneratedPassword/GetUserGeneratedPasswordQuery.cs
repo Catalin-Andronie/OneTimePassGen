@@ -1,4 +1,4 @@
-using OneTimePassGen.Application.Common.Interfaces;
+﻿using OneTimePassGen.Application.Common.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using OneTimePassGen.Application.Common.Security;
@@ -10,8 +10,15 @@ namespace OneTimePassGen.Application.UserGeneratedPasswords.Queries.GetUserGener
 [Authorize]
 public sealed class GetUserGeneratedPasswordQuery : IRequest<UserGeneratedPasswordItem?>
 {
-    public Guid Id { get; init; }
-    public bool IncludeExpiredPasswords { get; init; }
+    public GetUserGeneratedPasswordQuery(Guid generatedPasswordId,
+                                         bool? includeExpiredPasswords)
+    {
+        GeneratedPasswordId = generatedPasswordId;
+        IncludeExpiredPasswords = includeExpiredPasswords ?? false;
+    }
+
+    public readonly Guid GeneratedPasswordId;
+    public readonly bool IncludeExpiredPasswords;
 }
 
 internal sealed class GetUserGeneratedPasswordQueryHandler : IRequestHandler<GetUserGeneratedPasswordQuery, UserGeneratedPasswordItem?>
@@ -28,7 +35,7 @@ internal sealed class GetUserGeneratedPasswordQueryHandler : IRequestHandler<Get
     public async Task<UserGeneratedPasswordItem?> Handle(GetUserGeneratedPasswordQuery request, CancellationToken cancellationToken)
     {
         string currentUserId = _currentUserService.UserId ?? throw new UnauthorizedAccessException("User unauthorized to execute this action.");
-        var query = _dbContext.UserGeneratedPasswords.Where(p => p.Id == request.Id &&
+        var query = _dbContext.UserGeneratedPasswords.Where(p => p.Id == request.GeneratedPasswordId &&
                                                                  p.UserId == currentUserId);
 
         if (!request.IncludeExpiredPasswords)

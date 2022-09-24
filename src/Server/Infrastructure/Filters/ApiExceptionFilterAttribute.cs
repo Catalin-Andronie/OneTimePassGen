@@ -1,4 +1,4 @@
-﻿using OneTimePassGen.Application.Common.Exceptions;
+using OneTimePassGen.Application.Common.Exceptions;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -14,6 +14,7 @@ internal sealed class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         // Register known exception types and handlers.
         _exceptionHandlers = new Dictionary<Type, Action<ExceptionContext>>
         {
+            { typeof(ValidationException), HandleValidationException },
             { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException },
             { typeof(ForbiddenAccessException), HandleForbiddenAccessException },
         };
@@ -41,6 +42,20 @@ internal sealed class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         }
 
         HandleUnknownException(context);
+    }
+
+    private static void HandleValidationException(ExceptionContext context)
+    {
+        var exception = (ValidationException)context.Exception;
+
+        var details = new ValidationProblemDetails(exception.Errors)
+        {
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+        };
+
+        context.Result = new BadRequestObjectResult(details);
+
+        context.ExceptionHandled = true;
     }
 
     private static void HandleInvalidModelStateException(ExceptionContext context)

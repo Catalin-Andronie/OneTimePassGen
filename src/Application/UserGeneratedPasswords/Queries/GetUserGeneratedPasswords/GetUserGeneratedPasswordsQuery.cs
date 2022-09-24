@@ -10,7 +10,12 @@ namespace OneTimePassGen.Application.UserGeneratedPasswords.Queries.GetUserGener
 [Authorize]
 public sealed class GetUserGeneratedPasswordsQuery : IRequest<IList<UserGeneratedPasswordItem>>
 {
-    public bool IncludeExpiredPasswords { get; set; }
+    public GetUserGeneratedPasswordsQuery(bool? includeExpiredPasswords)
+    {
+        IncludeExpiredPasswords = includeExpiredPasswords ?? false;
+    }
+
+    public readonly bool IncludeExpiredPasswords;
 }
 
 internal sealed class GetUserGeneratedPasswordsQueryHandler : IRequestHandler<GetUserGeneratedPasswordsQuery, IList<UserGeneratedPasswordItem>>

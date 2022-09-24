@@ -21,21 +21,25 @@ public sealed class UserGeneratedPasswordController : ApiControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IList<UserGeneratedPasswordItem>> GetUserPasswordsAsync(
-        [FromQuery] GetUserGeneratedPasswordsQuery query,
+        [FromQuery] bool? includeExpiredPasswords,
         CancellationToken cancellationToken = default)
     {
-        return await Mediator.Send(query, cancellationToken);
+        var getAllRequest = new GetUserGeneratedPasswordsQuery(includeExpiredPasswords);
+        return await Mediator.Send(getAllRequest, cancellationToken);
     }
 
-    [HttpGet("{userPasswordId}")]
+    [HttpGet("{generatedPasswordId}")]
     [ProducesResponseType(typeof(IList<UserGeneratedPasswordItem>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<UserGeneratedPasswordItem>> GetUserPasswordAsync(Guid generatedPasswordId, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<UserGeneratedPasswordItem>> GetUserPasswordAsync(
+        Guid generatedPasswordId,
+        [FromQuery] bool? includeExpiredPasswords,
+        CancellationToken cancellationToken = default)
     {
-        var getRequest = new GetUserGeneratedPasswordQuery { Id = generatedPasswordId };
+        var getRequest = new GetUserGeneratedPasswordQuery(generatedPasswordId, includeExpiredPasswords);
         var userGeneratedPasswordItem = await Mediator.Send(getRequest, cancellationToken);
 
         return userGeneratedPasswordItem ?? (ActionResult<UserGeneratedPasswordItem>)NotFound();
@@ -55,7 +59,7 @@ public sealed class UserGeneratedPasswordController : ApiControllerBase
         if (generatedPasswordId == Guid.Empty)
             return NoContent();
 
-        var getRequest = new GetUserGeneratedPasswordQuery { Id = generatedPasswordId };
+        var getRequest = new GetUserGeneratedPasswordQuery(generatedPasswordId, includeExpiredPasswords: false);
         var userGeneratedPasswordItem = await Mediator.Send(getRequest, cancellationToken);
 
         return CreatedAtAction(nameof(GetUserPasswordAsync), new { userGeneratedPasswordItem?.Id }, userGeneratedPasswordItem);
