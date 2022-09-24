@@ -3,8 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using NSwag;
 using NSwag.Generation.Processors.Security;
 
+using OneTimePassGen.Application.Common.Interfaces;
 using OneTimePassGen.Infrastructure;
 using OneTimePassGen.Infrastructure.Persistance;
+using OneTimePassGen.Server.Services;
 
 namespace OneTimePassGen;
 
@@ -16,6 +18,8 @@ internal static class ApplicationExtensions
         builder.Services.AddInfrastructure(builder.Configuration);
 
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+        builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();
 
         builder.Services.AddControllersWithViews();
         builder.Services.AddRazorPages();

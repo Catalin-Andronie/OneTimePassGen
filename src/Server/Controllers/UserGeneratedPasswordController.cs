@@ -1,9 +1,8 @@
-using System.Security.Claims;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+using OneTimePassGen.Application.Common.Interfaces;
 using OneTimePassGen.Domain.Entities;
 using OneTimePassGen.Infrastructure.Persistance;
 using OneTimePassGen.Server.Models;
@@ -17,10 +16,12 @@ namespace OneTimePassGen.Server.Controllers;
 public sealed class UserGeneratedPasswordController : ControllerBase
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly ICurrentUserService _currentUserService;
 
-    public UserGeneratedPasswordController(ApplicationDbContext dbContext)
+    public UserGeneratedPasswordController(ApplicationDbContext dbContext, ICurrentUserService currentUserService)
     {
         _dbContext = dbContext;
+        _currentUserService = currentUserService;
     }
 
     [HttpGet]
@@ -33,7 +34,7 @@ public sealed class UserGeneratedPasswordController : ControllerBase
         [FromQuery(Name = "includeExpiredPasswords")] bool includeExpiredPasswords = false,
         CancellationToken cancellationToken = default)
     {
-        string currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        string currentUserId = _currentUserService.UserId ?? throw new UnauthorizedAccessException("User unauthorized to execute this action.");
         var query = _dbContext.UserGeneratedPasswords.Where(p => p.UserId == currentUserId);
 
         if (!includeExpiredPasswords)
@@ -64,7 +65,7 @@ public sealed class UserGeneratedPasswordController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<GeneratedPasswordDto>> GetUserPasswordAsync(Guid userPasswordId, CancellationToken cancellationToken = default)
     {
-        string currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        string currentUserId = _currentUserService.UserId ?? throw new UnauthorizedAccessException("User unauthorized to execute this action.");
         var generatedPassword = await _dbContext.UserGeneratedPasswords
                                             .Where(p => p.Id == userPasswordId && p.UserId == currentUserId)
                                             .Select(p => new GeneratedPasswordDto
@@ -89,7 +90,7 @@ public sealed class UserGeneratedPasswordController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<GeneratedPasswordDto>> CreateUserPasswordAsync(CancellationToken cancellationToken = default)
     {
-        string currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        string currentUserId = _currentUserService.UserId ?? throw new UnauthorizedAccessException("User unauthorized to execute this action.");
         string passwordValue = Guid.NewGuid().ToString();
         var now = DateTimeOffset.Now;
         const double generatedPasswordExpirationSeconds = 30;
