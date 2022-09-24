@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace OneTimePassGen.Controllers;
 
-public class OidcConfigurationController : Controller
+public sealed class OidcConfigurationController : Controller
 {
     private readonly ILogger<OidcConfigurationController> _logger;
 
