@@ -7,6 +7,7 @@ using OneTimePassGen.Application;
 using OneTimePassGen.Application.Common.Interfaces;
 using OneTimePassGen.Infrastructure;
 using OneTimePassGen.Infrastructure.Persistance;
+using OneTimePassGen.Server.Infrastructure.Filters;
 using OneTimePassGen.Server.Services;
 
 namespace OneTimePassGen;
@@ -23,7 +24,8 @@ internal static class ApplicationExtensions
 
         builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();
 
-        builder.Services.AddControllersWithViews();
+        builder.Services.AddControllersWithViews(options => options.Filters.Add<ApiExceptionFilterAttribute>());
+
         builder.Services.AddRazorPages();
 
         // Register NSwag Swagger services

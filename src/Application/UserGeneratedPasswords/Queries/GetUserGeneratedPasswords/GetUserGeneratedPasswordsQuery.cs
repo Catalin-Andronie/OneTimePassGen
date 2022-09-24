@@ -1,10 +1,12 @@
 ﻿using OneTimePassGen.Application.Common.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using OneTimePassGen.Application.Common.Security;
 
 namespace OneTimePassGen.Application.UserGeneratedPasswords.Queries.GetUserGeneratedPasswords;
 #pragma warning disable MA0048 // File name must match type name
 
+[Authorize]
 public sealed class GetUserGeneratedPasswordsQuery : IRequest<IList<UserGeneratedPasswordDto>>
 {
     public bool IncludeExpiredPasswords { get; set; }
