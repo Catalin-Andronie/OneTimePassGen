@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using OneTimePassGen.Domain.Entities;
 
 namespace OneTimePassGen.Infrastructure.Persistance.Configurations;

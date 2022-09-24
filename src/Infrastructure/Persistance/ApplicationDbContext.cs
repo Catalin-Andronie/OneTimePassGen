@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
+﻿using System.Reflection;
+
 using Duende.IdentityServer.EntityFramework.Options;
-using OneTimePassGen.Infrastructure.Identity;
-using OneTimePassGen.Domain.Entities;
-using System.Reflection;
+
+using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.Extensions.Options;
+
+using OneTimePassGen.Domain.Entities;
+using OneTimePassGen.Infrastructure.Identity;
 
 namespace OneTimePassGen.Infrastructure.Persistance;
 

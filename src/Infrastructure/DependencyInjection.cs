@@ -1,8 +1,9 @@
-using Microsoft.EntityFrameworkCore;
-using OneTimePassGen.Infrastructure.Identity;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+using OneTimePassGen.Infrastructure.Identity;
 using OneTimePassGen.Infrastructure.Persistance;
 
 namespace OneTimePassGen.Infrastructure;

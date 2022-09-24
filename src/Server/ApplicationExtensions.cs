@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+
 using NSwag;
 using NSwag.Generation.Processors.Security;
+
 using OneTimePassGen.Infrastructure;
 using OneTimePassGen.Infrastructure.Persistance;
 
