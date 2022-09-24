@@ -21,10 +21,10 @@ export class UserGeneratedPasswordsPageComponent implements OnInit, OnDestroy {
   }
 
   public get userGeneratedPasswords(): UserGeneratedPasswordModel[] {
-    if (!this.displayExpiredUserGeneratedPasswords)
-      return this._userGeneratedPasswords.filter(p => !p.isExpired);
-    else
+    if (this.displayExpiredUserGeneratedPasswords)
       return this._userGeneratedPasswords;
+    else
+      return this._userGeneratedPasswords.filter(p => !p.isExpired);
   };
 
   public displayExpiredUserGeneratedPasswords: boolean = true;
