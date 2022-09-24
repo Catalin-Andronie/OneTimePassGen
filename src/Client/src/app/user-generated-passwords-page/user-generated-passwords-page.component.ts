@@ -28,6 +28,7 @@ export class UserGeneratedPasswordsPageComponent implements OnInit, OnDestroy {
   };
 
   public displayExpiredUserGeneratedPasswords: boolean = true;
+  public fetchExpiredUserGeneratedPasswords: boolean = false;
 
   public constructor(
     private _userGeneratedPasswordService: UserGeneratedPasswordService) {
@@ -46,10 +47,16 @@ export class UserGeneratedPasswordsPageComponent implements OnInit, OnDestroy {
     this._createUserGeneratedPassword();
   }
 
+  public refreshData(): void {
+    this._fetchUserGeneratedPasswords();
+  }
+
   private _fetchUserGeneratedPasswords(): void {
     this._fetchUserGeneratedPasswordsSubscription?.unsubscribe()
 
-    this._fetchUserGeneratedPasswordsSubscription = this._userGeneratedPasswordService.fetchUserGeneratedPasswords()
+    const includeExpiredPasswords = this.fetchExpiredUserGeneratedPasswords;
+    this._fetchUserGeneratedPasswordsSubscription = this._userGeneratedPasswordService
+      .fetchUserGeneratedPasswords(includeExpiredPasswords)
       .subscribe({
         next: (result) => this._userGeneratedPasswords = result || [],
         error: (e) => console.error(e),

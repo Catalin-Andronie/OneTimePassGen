@@ -13,8 +13,8 @@ export class UserGeneratedPasswordService {
     @Inject('BASE_URL') private _baseUrl: string) {
   }
 
-  public fetchUserGeneratedPasswords(): Observable<UserGeneratedPasswordModel[]> {
-    const url = this._baseUrl + 'api/user-generated-passwords';
+  public fetchUserGeneratedPasswords(includeExpiredPasswords: boolean = false): Observable<UserGeneratedPasswordModel[]> {
+    const url = this._baseUrl + `api/user-generated-passwords?includeExpiredPasswords=${includeExpiredPasswords}`;
     return this._httpClient.get<UserGeneratedPasswordModel[]>(url)
       .pipe(
         map((dtos: UserGeneratedPasswordDto[]) => {
