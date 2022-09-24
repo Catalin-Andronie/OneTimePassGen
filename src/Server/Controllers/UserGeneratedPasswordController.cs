@@ -27,11 +27,20 @@ public sealed class UserGeneratedPasswordController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IList<GeneratedPasswordDto>> GetUserPasswordsAsync(CancellationToken cancellationToken = default)
+    public async Task<IList<GeneratedPasswordDto>> GetUserPasswordsAsync(
+        [FromQuery(Name = "includeExpiredPasswords")] bool? includeExpiredPasswords,
+        CancellationToken cancellationToken = default)
     {
         string currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        return await _dbContext.UserGeneratedPasswords
-                    .Where(p => p.UserId == currentUserId)
+        var query = _dbContext.UserGeneratedPasswords.Where(p => p.UserId == currentUserId);
+
+        if (includeExpiredPasswords == false)
+        {
+            var now = DateTimeOffset.Now;
+            query = query.Where(p => p.ExpiersAt > now);
+        }
+
+        return await query
                     .Select(p => new GeneratedPasswordDto
                     {
                         Id = p.Id,
