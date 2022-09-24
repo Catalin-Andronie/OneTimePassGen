@@ -20,11 +20,18 @@ export class UserGeneratedPasswordsPageComponent implements OnInit, OnDestroy {
     return !!this._createUserGeneratedPasswordSubscription && !this._createUserGeneratedPasswordSubscription.closed;
   }
 
-  public get userGeneratedPasswords(): UserGeneratedPasswordModel[] { return this._userGeneratedPasswords; };
+  public get userGeneratedPasswords(): UserGeneratedPasswordModel[] {
+    if (!this.displayExpiredUserGeneratedPasswords)
+      return this._userGeneratedPasswords.filter(p => !p.isExpired);
+    else
+      return this._userGeneratedPasswords;
+  };
 
   public get displayTable(): boolean {
     return this.userGeneratedPasswords.length > 0;
   }
+
+  public displayExpiredUserGeneratedPasswords: boolean = true;
 
   public constructor(
     private _userGeneratedPasswordService: UserGeneratedPasswordService) {
