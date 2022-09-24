@@ -28,13 +28,13 @@ public sealed class UserGeneratedPasswordController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IList<GeneratedPasswordDto>> GetUserPasswordsAsync(
-        [FromQuery(Name = "includeExpiredPasswords")] bool? includeExpiredPasswords,
+        [FromQuery(Name = "includeExpiredPasswords")] bool includeExpiredPasswords = false,
         CancellationToken cancellationToken = default)
     {
         string currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var query = _dbContext.UserGeneratedPasswords.Where(p => p.UserId == currentUserId);
 
-        if (includeExpiredPasswords == false)
+        if (!includeExpiredPasswords)
         {
             var now = DateTimeOffset.Now;
             query = query.Where(p => p.ExpiersAt > now);
