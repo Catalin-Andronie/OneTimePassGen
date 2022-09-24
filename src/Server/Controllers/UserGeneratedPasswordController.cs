@@ -46,7 +46,7 @@ public sealed class UserGeneratedPasswordController : ControllerBase
                         Id = p.Id,
                         UserId = p.UserId,
                         Password = p.Password,
-                        ExpiersAt = p.ExpiersAt,
+                        ExpiresAt = p.ExpiersAt,
                         CreatedAt = p.CreatedAt
                     })
                     .OrderByDescending(p => p.CreatedAt)
@@ -70,7 +70,7 @@ public sealed class UserGeneratedPasswordController : ControllerBase
                                                 Id = p.Id,
                                                 UserId = p.UserId,
                                                 Password = p.Password,
-                                                ExpiersAt = p.ExpiersAt,
+                                                ExpiresAt = p.ExpiersAt,
                                                 CreatedAt = p.CreatedAt
                                             })
                                             .SingleOrDefaultAsync(cancellationToken)
@@ -91,7 +91,7 @@ public sealed class UserGeneratedPasswordController : ControllerBase
         string passwordValue = Guid.NewGuid().ToString();
         var now = DateTimeOffset.Now;
         const double generatedPasswordExpirationSeconds = 30;
-        var expiredAt = now.AddSeconds(generatedPasswordExpirationSeconds);
+        var expiresAt = now.AddSeconds(generatedPasswordExpirationSeconds);
 
         var generatedPassword = new UserGeneratedPassword
         {
@@ -99,12 +99,20 @@ public sealed class UserGeneratedPasswordController : ControllerBase
             UserId = currentUserId,
             Password = passwordValue,
             CreatedAt = now,
-            ExpiersAt = expiredAt
+            ExpiersAt = expiresAt
         };
 
         await _dbContext.UserGeneratedPasswords.AddAsync(generatedPassword, cancellationToken).ConfigureAwait(false);
         await _dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-        return CreatedAtAction(nameof(GetUserPasswordAsync), new { generatedPassword.Id }, generatedPassword);
+        var generatedPasswordDto = new GeneratedPasswordDto
+        {
+            Id = generatedPassword.Id,
+            UserId = generatedPassword.UserId,
+            Password = generatedPassword.Password,
+            ExpiresAt = generatedPassword.ExpiersAt,
+            CreatedAt = generatedPassword.CreatedAt
+        };
+        return CreatedAtAction(nameof(GetUserPasswordAsync), new { generatedPasswordDto.Id }, generatedPasswordDto);
     }
 }

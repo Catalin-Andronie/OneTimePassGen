@@ -26,13 +26,13 @@ public sealed class GeneratedPasswordDto
     public string Password { get; set; } = string.Empty;
 
     /// <summary>
-    ///     Gets or sets the date and time, in UTC, when the generated password expiers.
+    ///     Gets or sets the date and time, in UTC, when the generated password expires.
     /// </summary>
     /// <remarks>
-    ///     A value in the feature means the generated password is not expierd.
+    ///     A value in the feature means the generated password is not expired.
     /// </remarks>
     [Required]
-    public DateTimeOffset ExpiersAt { get; set; }
+    public DateTimeOffset ExpiresAt { get; set; }
 
     /// <summary>
     ///     Gets or sets the date and time, in UTC, when the entry was created.

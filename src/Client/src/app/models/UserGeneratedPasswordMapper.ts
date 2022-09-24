@@ -39,7 +39,7 @@ export class UserGeneratedPasswordMapper {
       source.id,
       source.userId,
       source.password,
-      source.expiersAt,
+      source.expiresAt,
       source.createdAt
     );
 

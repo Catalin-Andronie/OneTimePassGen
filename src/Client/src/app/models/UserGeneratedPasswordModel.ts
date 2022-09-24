@@ -4,7 +4,7 @@ export class UserGeneratedPasswordModel {
   private _id: string;
   private _userId: string;
   private _password: string;
-  private _expiersAt: Date;
+  private _expiresAt: Date;
   private _createdAt: Date;
   private _expiresInSeconds: number = 0;
 
@@ -23,7 +23,7 @@ export class UserGeneratedPasswordModel {
     this._id = id;
     this._userId = userId;
     this._password = password;
-    this._expiersAt = expiresAt;
+    this._expiresAt = expiresAt;
     this._createdAt = createdAt;
 
     this._computePasswordExpiration(new Date(Date.now()));
@@ -45,8 +45,8 @@ export class UserGeneratedPasswordModel {
     return this._password;
   }
 
-  public get expiersAt(): Date {
-    return this._expiersAt;
+  public get expiresAt(): Date {
+    return this._expiresAt;
   }
 
   public get createdAt(): Date {
@@ -62,7 +62,7 @@ export class UserGeneratedPasswordModel {
   }
 
   private _computePasswordExpiration(now: Date) {
-    const expirationDate = new Date(this.expiersAt);
+    const expirationDate = new Date(this.expiresAt);
     const passwordExpired = expirationDate < now;
     this._expiresInSeconds = passwordExpired ? 0 : expirationDate.getTime() - now.getTime();
   }
