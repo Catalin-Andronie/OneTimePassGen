@@ -2,17 +2,18 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using OneTimePassGen.Application.Common.Security;
+using OneTimePassGen.Application.UserGeneratedPasswords.Models;
 
 namespace OneTimePassGen.Application.UserGeneratedPasswords.Queries.GetUserGeneratedPasswords;
 #pragma warning disable MA0048 // File name must match type name
 
 [Authorize]
-public sealed class GetUserGeneratedPasswordsQuery : IRequest<IList<UserGeneratedPasswordDto>>
+public sealed class GetUserGeneratedPasswordsQuery : IRequest<IList<UserGeneratedPasswordItem>>
 {
     public bool IncludeExpiredPasswords { get; set; }
 }
 
-internal sealed class GetUserGeneratedPasswordsQueryHandler : IRequestHandler<GetUserGeneratedPasswordsQuery, IList<UserGeneratedPasswordDto>>
+internal sealed class GetUserGeneratedPasswordsQueryHandler : IRequestHandler<GetUserGeneratedPasswordsQuery, IList<UserGeneratedPasswordItem>>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ICurrentUserService _currentUserService;
@@ -23,7 +24,7 @@ internal sealed class GetUserGeneratedPasswordsQueryHandler : IRequestHandler<Ge
         _currentUserService = currentUserService;
     }
 
-    public async Task<IList<UserGeneratedPasswordDto>> Handle(GetUserGeneratedPasswordsQuery request, CancellationToken cancellationToken)
+    public async Task<IList<UserGeneratedPasswordItem>> Handle(GetUserGeneratedPasswordsQuery request, CancellationToken cancellationToken)
     {
         string currentUserId = _currentUserService.UserId ?? throw new UnauthorizedAccessException("User unauthorized to execute this action.");
         var query = _dbContext.UserGeneratedPasswords.Where(p => p.UserId == currentUserId);
@@ -35,7 +36,7 @@ internal sealed class GetUserGeneratedPasswordsQueryHandler : IRequestHandler<Ge
         }
 
         return await query
-                    .Select(p => new UserGeneratedPasswordDto
+                    .Select(p => new UserGeneratedPasswordItem
                     {
                         Id = p.Id,
                         Password = p.Password,

@@ -1,11 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace OneTimePassGen.Application.UserGeneratedPasswords.Queries.GetUserGeneratedPasswords;
+namespace OneTimePassGen.Application.UserGeneratedPasswords.Models;
 
 /// <summary>
 ///     Represents a generated password that a user possesses.
 /// </summary>
-public sealed class UserGeneratedPasswordDto
+public sealed class UserGeneratedPasswordItem
 {
     /// <summary>
     ///     Gets or sets the identifier for this generated password.
