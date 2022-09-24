@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 using OneTimePassGen.Application.Common.Interfaces;
 using OneTimePassGen.Application.UserGeneratedPasswords.Models;
+using OneTimePassGen.Application.UserGeneratedPasswords.Queries.GetUserGeneratedPassword;
 using OneTimePassGen.Application.UserGeneratedPasswords.Queries.GetUserGeneratedPasswords;
 using OneTimePassGen.Domain.Entities;
 using OneTimePassGen.Infrastructure.Persistance;
@@ -44,22 +44,12 @@ public sealed class UserGeneratedPasswordController : ApiControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<UserGeneratedPasswordItem>> GetUserPasswordAsync(Guid userPasswordId, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<UserGeneratedPasswordItem>> GetUserPasswordAsync(Guid generatedPasswordId, CancellationToken cancellationToken = default)
     {
-        string currentUserId = _currentUserService.UserId ?? throw new UnauthorizedAccessException("User unauthorized to execute this action.");
-        var generatedPassword = await _dbContext.UserGeneratedPasswords
-                                            .Where(p => p.Id == userPasswordId && p.UserId == currentUserId)
-                                            .Select(p => new UserGeneratedPasswordItem
-                                            {
-                                                Id = p.Id,
-                                                Password = p.Password,
-                                                ExpiresAt = p.ExpiersAt,
-                                                CreatedAt = p.CreatedAt
-                                            })
-                                            .SingleOrDefaultAsync(cancellationToken)
-                                            .ConfigureAwait(false);
+        var getRequest = new GetUserGeneratedPasswordQuery { Id = generatedPasswordId };
+        var userGeneratedPasswordItem = await Mediator.Send(getRequest, cancellationToken);
 
-        return generatedPassword ?? (ActionResult<UserGeneratedPasswordItem>)NotFound();
+        return userGeneratedPasswordItem ?? (ActionResult<UserGeneratedPasswordItem>)NotFound();
     }
 
     [HttpPost]
