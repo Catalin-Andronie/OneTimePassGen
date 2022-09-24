@@ -1,7 +1,7 @@
-export interface UserGeneratedPasswordModel {
-  id: string;
-  userId: string;
-  password: string;
-  expiersAt: Date;
-  createdAt: Date;
+export class UserGeneratedPasswordModel {
+  public id!: string;
+  public userId!: string;
+  public password!: string;
+  public expiersAt!: Date;
+  public createdAt!: Date;
 }
