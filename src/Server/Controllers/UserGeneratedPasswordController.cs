@@ -90,13 +90,16 @@ public sealed class UserGeneratedPasswordController : ControllerBase
         string currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         string passwordValue = Guid.NewGuid().ToString();
         var now = DateTimeOffset.Now;
+        const double generatedPasswordExpirationSeconds = 30;
+        var expiredAt = now.AddSeconds(generatedPasswordExpirationSeconds);
+
         var generatedPassword = new UserGeneratedPassword
         {
             Id = Guid.NewGuid(),
             UserId = currentUserId,
             Password = passwordValue,
             CreatedAt = now,
-            ExpiersAt = now.AddSeconds(30)
+            ExpiersAt = expiredAt
         };
 
         await _dbContext.UserGeneratedPasswords.AddAsync(generatedPassword, cancellationToken).ConfigureAwait(false);
