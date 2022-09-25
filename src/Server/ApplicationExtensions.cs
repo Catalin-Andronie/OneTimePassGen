@@ -12,24 +12,30 @@ using OneTimePassGen.Server.Services;
 
 namespace OneTimePassGen;
 
-internal static class ApplicationExtensions
+public static class ApplicationExtensions
 {
     public static WebApplicationBuilder ConfigureApplicationServices(this WebApplicationBuilder builder)
     {
+        builder.Services.ConfigureApplicationServices(builder.Configuration);
+        return builder;
+    }
+
+    public static void ConfigureApplicationServices(this IServiceCollection services, IConfiguration configuration)
+    {
         // Add services to the container.
-        builder.Services.AddApplication();
-        builder.Services.AddInfrastructure(builder.Configuration);
+        services.AddApplication();
+        services.AddInfrastructure(configuration);
 
-        builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+        services.AddDatabaseDeveloperPageExceptionFilter();
 
-        builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();
+        services.AddSingleton<ICurrentUserService, CurrentUserService>();
 
-        builder.Services.AddControllersWithViews(options => options.Filters.Add<ApiExceptionFilterAttribute>());
+        services.AddControllersWithViews(options => options.Filters.Add<ApiExceptionFilterAttribute>());
 
-        builder.Services.AddRazorPages();
+        services.AddRazorPages();
 
         // Register NSwag Swagger services
-        builder.Services.AddSwaggerDocument(config =>
+        services.AddSwaggerDocument(config =>
         {
             // Configure swagger document
             config.PostProcess = document =>
@@ -56,7 +62,6 @@ internal static class ApplicationExtensions
 
             config.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor(securityType));
         });
-        return builder;
     }
 
     public static WebApplication ConfigureApplicationRequestPipeline(this WebApplication app)
@@ -93,10 +98,14 @@ internal static class ApplicationExtensions
         return app;
     }
 
-    public static async Task ApplyDatabaseMigrationsAsync(this WebApplication app)
-    {
-        await using var scope = app.Services.CreateAsyncScope();
+    public static Task ApplyDatabaseMigrationsAsync(this WebApplication app)
+        => ApplyDatabaseMigrationsAsync(app.Services);
 
+    public static async Task ApplyDatabaseMigrationsAsync(this IServiceProvider serviceProvider)
+    {
+        await using var scope = serviceProvider.CreateAsyncScope();
+
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<ApplicationDbContext>>();
         using var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         try
         {
@@ -111,10 +120,11 @@ internal static class ApplicationExtensions
                 //       migrations.
                 await dbContext.Database.MigrateAsync().ConfigureAwait(false);
             }
+            logger.LogInformation("Database was created/migrated successfully.");
         }
-        catch
+        catch (Exception ex)
         {
-            // ignore
+            logger.LogError(ex, "Database cannot be migrated.", ex.Message);
         }
     }
 }
