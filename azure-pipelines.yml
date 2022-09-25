@@ -1,0 +1,50 @@
+# ASP.NET
+# Build and test ASP.NET projects.
+# Add steps that publish symbols, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
+
+# We want to omit the release branch.
+trigger:
+  branches:
+    exclude:
+      - release
+
+pool:
+  vmImage: "ubuntu-latest"
+
+variables:
+  buildConfiguration: "Release"
+
+steps:
+  - task: UseDotNet@2
+    displayName: "Use .NET SDK"
+    inputs:
+      packageType: sdk
+      version: "6.x"
+
+  - script: "dotnet tool restore"
+    displayName: "Restore tools"
+
+  - script: "dotnet cake --task=restore"
+    displayName: "Restore packages"
+
+  - script: "dotnet cake --task=build --configuration=$(buildConfiguration) --exclusive"
+    displayName: "Build solution - $(buildConfiguration)"
+
+  - script: "dotnet cake --task=unit-tests --configuration=$(buildConfiguration) --exclusive"
+    displayName: "Run unit tests - $(buildConfiguration)"
+
+  - script: "dotnet cake --task=integration-tests --configuration=$(buildConfiguration) --exclusive"
+    displayName: "Run integration tests - $(buildConfiguration)"
+
+  - script: "dotnet cake --task=acceptance-tests --configuration=$(buildConfiguration) --exclusive"
+    displayName: "Run acceptance tests - $(buildConfiguration)"
+
+  - script: "dotnet cake --task=publish-test-reports"
+    displayName: "Publish test reports"
+
+  - script: "dotnet cake --task=code-coverage"
+    displayName: "Generate code coverage"
+
+  - script: "dotnet cake --task=publish-code-coverage-reports"
+    displayName: "Publish code coverage reports"
