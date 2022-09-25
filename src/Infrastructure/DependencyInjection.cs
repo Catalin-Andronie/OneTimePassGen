@@ -19,6 +19,12 @@ public static class DependencyInjection
         services.AddDbContext<ApplicationDbContext>(
                 options => options.UseSqlite(connectionString));
 
+        services.AddTransient<IApplicationConfiguration, ApplicationConfiguration>((serviceProvider) =>
+        {
+            var cfg = serviceProvider.GetRequiredService<IConfiguration>();
+            return new ApplicationConfiguration(cfg);
+        });
+
         services
             .AddDefaultIdentity<ApplicationUser>(
                 options => options.SignIn.RequireConfirmedAccount = true)

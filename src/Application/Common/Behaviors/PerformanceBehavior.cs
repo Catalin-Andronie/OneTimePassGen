@@ -15,18 +15,20 @@ internal sealed class PerformanceBehavior<TRequest, TResponse> : IPipelineBehavi
     private readonly ILogger<TRequest> _logger;
     private readonly ICurrentUserService _currentUserService;
     private readonly IIdentityService _identityService;
-    private const double LongRunningRequestElapsedMilliseconds = 500;
+    private readonly IApplicationConfiguration _configuration;
 
     public PerformanceBehavior(
         ILogger<TRequest> logger,
         ICurrentUserService currentUserService,
-        IIdentityService identityService)
+        IIdentityService identityService,
+        IApplicationConfiguration configuration)
     {
         _timer = new Stopwatch();
 
         _logger = logger;
         _currentUserService = currentUserService;
         _identityService = identityService;
+        _configuration = configuration;
     }
 
     public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
@@ -39,7 +41,12 @@ internal sealed class PerformanceBehavior<TRequest, TResponse> : IPipelineBehavi
 
         var elapsedMilliseconds = _timer.ElapsedMilliseconds;
 
-        if (elapsedMilliseconds >= LongRunningRequestElapsedMilliseconds)
+        const string configurationKey = "Application:LongRunningRequestLimitMilliseconds";
+        var longRunningRequestLimitMilliseconds = _configuration.GetValue<double?>(configurationKey);
+        if (longRunningRequestLimitMilliseconds is null)
+            throw new ApplicationException($"Configuration key '{configurationKey}' doesn't exist.");
+
+        if (elapsedMilliseconds >= longRunningRequestLimitMilliseconds)
         {
             var requestName = typeof(TRequest).Name;
             var userId = "Unknown";
@@ -52,8 +59,8 @@ internal sealed class PerformanceBehavior<TRequest, TResponse> : IPipelineBehavi
             }
 
             _logger.LogWarning(
-                "Long Running Request: '{@RequestName}' took ({@ElapsedMilliseconds} milliseconds) made by user `{@UserName}` with identifier '{@UserId}'.",
-                requestName, elapsedMilliseconds, userName, userId);
+                "Long Running Request: '{@RequestName}' took ({@ElapsedMilliseconds} ms) and limit is ({@LongRunningRequestLimitMilliseconds} ms). Request made by user `{@UserName}` with identifier '{@UserId}'.",
+                requestName, elapsedMilliseconds, longRunningRequestLimitMilliseconds, userName, userId);
         }
 
         return response;

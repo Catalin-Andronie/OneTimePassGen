@@ -1,4 +1,4 @@
-using OneTimePassGen.Application.Common.Exceptions;
+﻿using OneTimePassGen.Application.Common.Exceptions;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -15,6 +15,7 @@ internal sealed class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         _exceptionHandlers = new Dictionary<Type, Action<ExceptionContext>>
         {
             { typeof(ValidationException), HandleValidationException },
+            // { typeof(NotFoundException), HandleNotFoundException },
             { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException },
             { typeof(ForbiddenAccessException), HandleForbiddenAccessException },
         };
@@ -70,6 +71,22 @@ internal sealed class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         context.ExceptionHandled = true;
     }
 
+    // private static void HandleNotFoundException(ExceptionContext context)
+    // {
+    //     var exception = (NotFoundException)context.Exception;
+
+    //     var details = new ProblemDetails
+    //     {
+    //         Title = "The specified resource was not found.",
+    //         Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+    //         Detail = exception.Message,
+    //     };
+
+    //     context.Result = new NotFoundObjectResult(details);
+
+    //     context.ExceptionHandled = true;
+    // }
+
     private static void HandleUnauthorizedAccessException(ExceptionContext context)
     {
         var details = new ProblemDetails
@@ -106,10 +123,11 @@ internal sealed class ApiExceptionFilterAttribute : ExceptionFilterAttribute
 
     private static void HandleUnknownException(ExceptionContext context)
     {
+        var title = $"An error occurred while processing your request. '{context.Exception.Message}'.";
         var details = new ProblemDetails
         {
             Status = StatusCodes.Status500InternalServerError,
-            Title = "An error occurred while processing your request.",
+            Title = title,
             Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
         };
 
