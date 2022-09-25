@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace OneTimePassGen.Application.Common.Behaviors;
 
-internal sealed class LoggingRequestPreProcessor<TRequest> : IRequestPreProcessor<TRequest>
+public sealed class LoggingRequestPreProcessor<TRequest> : IRequestPreProcessor<TRequest>
     where TRequest : notnull
 {
     private readonly ILogger _logger;

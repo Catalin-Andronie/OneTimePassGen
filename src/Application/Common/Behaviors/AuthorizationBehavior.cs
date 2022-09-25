@@ -8,7 +8,7 @@ using MediatR;
 
 namespace OneTimePassGen.Application.Common.Behaviors;
 
-internal sealed class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+public sealed class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
 {
     private readonly ICurrentUserService _currentUserService;
