@@ -18,7 +18,7 @@ using OneTimePassGen.Infrastructure.Persistance;
 namespace OneTimePassGen.Application.IntegrationTests;
 
 [SetUpFixture]
-public class Testing
+public sealed class Testing
 {
     private static string? s_currentUserId;
 
