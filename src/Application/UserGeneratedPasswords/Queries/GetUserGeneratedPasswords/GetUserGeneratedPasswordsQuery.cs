@@ -22,11 +22,16 @@ internal sealed class GetUserGeneratedPasswordsQueryHandler : IRequestHandler<Ge
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IDateTime _dateTime;
 
-    public GetUserGeneratedPasswordsQueryHandler(IApplicationDbContext context, ICurrentUserService currentUserService)
+    public GetUserGeneratedPasswordsQueryHandler(
+        IApplicationDbContext context,
+        ICurrentUserService currentUserService,
+        IDateTime dateTime)
     {
         _dbContext = context;
         _currentUserService = currentUserService;
+        _dateTime = dateTime;
     }
 
     public async Task<IList<UserGeneratedPasswordItem>> Handle(GetUserGeneratedPasswordsQuery request, CancellationToken cancellationToken)
@@ -36,7 +41,7 @@ internal sealed class GetUserGeneratedPasswordsQueryHandler : IRequestHandler<Ge
 
         if (!request.IncludeExpiredPasswords)
         {
-            var now = DateTimeOffset.Now;
+            var now = _dateTime.Now;
             query = query.Where(p => p.ExpiersAt > now);
         }
 

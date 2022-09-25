@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using OneTimePassGen.Application.Common.Interfaces;
 using OneTimePassGen.Infrastructure.Identity;
 using OneTimePassGen.Infrastructure.Persistance;
+using OneTimePassGen.Infrastructure.Services;
 
 namespace OneTimePassGen.Infrastructure;
 
@@ -41,6 +42,7 @@ public static class DependencyInjection
         services.AddScoped<IApplicationDbContext>(
             provider => provider.GetRequiredService<ApplicationDbContext>());
 
+        services.AddTransient<IDateTime, DateTimeService>();
         services.AddTransient<IIdentityService, IdentityService>();
     }
 }
