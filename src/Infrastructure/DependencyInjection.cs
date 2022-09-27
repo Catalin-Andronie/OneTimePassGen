@@ -43,6 +43,7 @@ public static class DependencyInjection
             provider => provider.GetRequiredService<ApplicationDbContext>());
 
         services.AddTransient<IDateTime, DateTimeService>();
+        services.AddTransient<IPasswordGenerator, PasswordGeneratorService>();
         services.AddTransient<IIdentityService, IdentityService>();
     }
 }
