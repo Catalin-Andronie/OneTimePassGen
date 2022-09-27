@@ -24,6 +24,7 @@ public sealed class Testing
 
     public static IServiceScopeFactory ScopeFactory { get; private set; } = null!;
     public static DateTimeOffset? CurrentDateTime { get; set; }
+    public static string? GeneratedPasswordValue { get; set; } = string.Empty;
 
     [OneTimeSetUp]
     public async Task RunBeforeAnyTests()
@@ -61,6 +62,13 @@ public sealed class Testing
         // Replace service registration for ICurrentUserService
         ReplaceService(services, _ => Mock.Of<IDateTime>(s => s.Now == (CurrentDateTime ?? s.Now) &&
                                                               s.UtcNow == (CurrentDateTime ?? s.UtcNow)));
+
+        // Replace service registration for IPasswordGenerator
+        ReplaceService(services, _ => {
+            var mock = new Mock<IPasswordGenerator>();
+            mock.Setup(s => s.GeneratePassword()).Returns(GeneratedPasswordValue ?? string.Empty);
+            return mock.Object;
+        });
 
         ScopeFactory = services.BuildServiceProvider().GetRequiredService<IServiceScopeFactory>();
 

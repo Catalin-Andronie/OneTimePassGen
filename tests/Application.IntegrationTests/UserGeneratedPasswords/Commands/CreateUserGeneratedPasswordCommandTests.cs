@@ -26,6 +26,7 @@ public sealed class CreateUserGeneratedPasswordCommandTests : TestBase
     public async Task CreateUserGeneratedPasswordCommand_Should_PersistToDatabase()
     {
         CurrentDateTime = new DateTimeOffset(2020, 08, 05, 16, 45, 23, 545, new TimeSpan(2, 0, 0));
+        GeneratedPasswordValue = "generated-password";
 
         var userId = await RunAsDefaultUserAsync();
 
@@ -39,7 +40,7 @@ public sealed class CreateUserGeneratedPasswordCommandTests : TestBase
         entry!.Id.Should().NotBeEmpty();
         entry.Id.Should().Be(entryId);
         entry.UserId.Should().Be(userId);
-        entry.Password.Should().NotBeNullOrEmpty();
+        entry.Password.Should().Be(GeneratedPasswordValue);
         entry.ExpiersAt.Should().BeExactly(CurrentDateTime.Value.AddSeconds(30), because: "generated passwords should expire after 30 seconds");
         entry.CreatedAt.Should().BeExactly(CurrentDateTime.Value);
     }
