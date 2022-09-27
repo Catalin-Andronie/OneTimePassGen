@@ -41,10 +41,7 @@ internal sealed class PerformanceBehavior<TRequest, TResponse> : IPipelineBehavi
 
         var elapsedMilliseconds = _timer.ElapsedMilliseconds;
 
-        const string configurationKey = "Application:LongRunningRequestLimitMilliseconds";
-        var longRunningRequestLimitMilliseconds = _configuration.GetValue<double?>(configurationKey);
-        if (longRunningRequestLimitMilliseconds is null)
-            throw new ApplicationException($"Configuration key '{configurationKey}' doesn't exist.");
+        var longRunningRequestLimitMilliseconds = _configuration.GetLongRunningRequestLimitMilliseconds();
 
         if (elapsedMilliseconds >= longRunningRequestLimitMilliseconds)
         {
