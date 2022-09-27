@@ -17,25 +17,28 @@ internal sealed class CreateUserGeneratedPasswordCommandHandler : IRequestHandle
     private readonly IApplicationDbContext _dbContext;
     private readonly ICurrentUserService _currentUserService;
     private readonly IDateTime _dateTime;
+    private readonly IApplicationConfiguration _configuration;
 
     public CreateUserGeneratedPasswordCommandHandler(
         IApplicationDbContext dbContext,
         ICurrentUserService currentUserService,
-        IDateTime dateTime)
+        IDateTime dateTime,
+        IApplicationConfiguration configuration)
     {
         _dbContext = dbContext;
         _currentUserService = currentUserService;
         _dateTime = dateTime;
+        _configuration = configuration;
     }
 
     public async Task<Guid> Handle(CreateUserGeneratedPasswordCommand request, CancellationToken cancellationToken = default)
     {
         string currentUserId = _currentUserService.UserId ?? throw new UnauthorizedAccessException("User unauthorized to execute this action.");
+        // TODO: Decouple away the password generation so that we can provide any implementations.
         string passwordValue = Guid.NewGuid().ToString();
         var now = _dateTime.Now;
 
-        // TODO: Move `GeneratedPasswordExpirationSeconds` value to config file.
-        const double generatedPasswordExpirationSeconds = 30;
+        var generatedPasswordExpirationSeconds = _configuration.GetGeneratedPasswordExpirationSeconds();
         var expiresAt = now.AddSeconds(generatedPasswordExpirationSeconds);
 
         var generatedPassword = new UserGeneratedPassword

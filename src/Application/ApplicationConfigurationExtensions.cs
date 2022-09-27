@@ -10,6 +10,12 @@ internal static class ApplicationConfigurationExtensions
         return GetRequiredValue<double>(appConfig, configurationKey);
     }
 
+    public static int GetGeneratedPasswordExpirationSeconds(this IApplicationConfiguration appConfig)
+    {
+        const string configurationKey = "Application:GeneratedPasswordExpirationSeconds";
+        return GetRequiredValue<int>(appConfig, configurationKey);
+    }
+
     private static T GetRequiredValue<T>(this IApplicationConfiguration appConfig, string configurationKey)
     {
         var value = appConfig.GetValue<T?>(configurationKey);
