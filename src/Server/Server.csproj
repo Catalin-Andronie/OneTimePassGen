@@ -9,7 +9,7 @@
     <IsPackable>false</IsPackable>
     <ImplicitUsings>enable</ImplicitUsings>
 
-    <SpaRoot>.\..\Client\</SpaRoot>
+    <SpaRoot>.\..\ClientAngular\</SpaRoot>
     <SpaProxyServerUrl>https://localhost:44442</SpaProxyServerUrl>
     <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
   </PropertyGroup>
