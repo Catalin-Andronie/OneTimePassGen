@@ -36,12 +36,12 @@ jobs:
     - name: Run acceptance tests - $buildConfiguration
       run: dotnet cake --task=acceptance-tests --configuration=$buildConfiguration --exclusive
 
-    # - name: Publish test reports
-    #   run: dotnet cake --task=publish-test-reports
+    - name: Publish test reports
+      run: dotnet cake --task=publish-test-reports
 
     - name: Generate code coverage
       run: dotnet cake --task=code-coverage
 
-    # - name: Publish code coverage reports
-    #   run: dotnet cake --task=publish-code-coverage-reports
+    - name: Publish code coverage reports
+      run: dotnet cake --task=publish-code-coverage-reports
 
