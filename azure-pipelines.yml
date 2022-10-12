@@ -17,16 +17,16 @@ variables:
 
 steps:
   - task: UseDotNet@2
-    displayName: "Use .NET SDK"
+    displayName: "Setup .NET"
     inputs:
       packageType: sdk
       version: "7.x"
 
   - script: "dotnet tool restore"
-    displayName: "Restore tools"
+    displayName: "Restore .NET tools"
 
   - script: "dotnet cake --task=restore"
-    displayName: "Restore packages"
+    displayName: "Restore dependencies"
 
   - script: "dotnet cake --task=build --configuration=$(buildConfiguration) --exclusive"
     displayName: "Build solution - $(buildConfiguration)"
