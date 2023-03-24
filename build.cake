@@ -68,7 +68,7 @@ void DeleteDirectory(DirectoryPath directory)
 }
 
 Task("clean")
-    .Description("Cleans the artifacts, bin and obj directories.")
+    .Description("Cleans existing artifacts.")
     .Does(() => {
         DeleteDirectory(testsArtifactsDirectory);
 
@@ -218,7 +218,7 @@ Task("code-coverage")
         }
         else if (canShowResults)
         {
-            Information($"Generated coverage results to {coverageIndexFilePath}.");
+            Information($"Generated coverage results to '{coverageIndexFilePath}'.");
             Information($"Using '--open-coverage-results' option the code coverage will open automatically in your default browser.");
         }
     })
