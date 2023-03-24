@@ -44,4 +44,3 @@ jobs:
 
     - name: Publish code coverage reports
       run: dotnet cake --task=publish-code-coverage-reports
-
