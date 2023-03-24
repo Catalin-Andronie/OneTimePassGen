@@ -104,7 +104,7 @@ Task("unit-tests")
             Configuration = CONFIGURATION,
             NoLogo = true,
             NoRestore = true,
-            NoBuild = true,
+            NoBuild = false,
             ToolTimeout = TimeSpan.FromMinutes(5),
             Blame = true,
             Loggers = new string[] { "trx" },
