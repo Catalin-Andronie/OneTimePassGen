@@ -13,7 +13,7 @@ public sealed class ValidationExceptionTests
     [Test]
     public void DefaultConstructorCreatesAnEmptyErrorDictionary()
     {
-        var actual = new ValidationException().Errors;
+        IDictionary<string, string[]> actual = new ValidationException().Errors;
 
         actual.Keys.Should().BeEquivalentTo(Array.Empty<string>());
     }
@@ -21,12 +21,12 @@ public sealed class ValidationExceptionTests
     [Test]
     public void SingleValidationFailure_Creates_SingleElementErrorDictionary()
     {
-        var failures = new List<ValidationFailure>
+        List<ValidationFailure> failures = new()
         {
             new ValidationFailure("Age", "must be over 18"),
         };
 
-        var actual = new ValidationException(failures).Errors;
+        IDictionary<string, string[]> actual = new ValidationException(failures).Errors;
 
         actual.Keys.Should().BeEquivalentTo(new string[] { "Age" });
         actual["Age"].Should().BeEquivalentTo(new string[] { "must be over 18" });
@@ -35,7 +35,7 @@ public sealed class ValidationExceptionTests
     [Test]
     public void MultipleValidationFailure_ForMultipleProperties_Creates_MultipleElementErrorDictionary_EachWithMultipleValues()
     {
-        var failures = new List<ValidationFailure>
+        List<ValidationFailure> failures = new()
         {
             new ValidationFailure("Age", "must be 18 or older"),
             new ValidationFailure("Age", "must be 25 or younger"),
@@ -45,7 +45,7 @@ public sealed class ValidationExceptionTests
             new ValidationFailure("Password", "must contain lower case letter"),
         };
 
-        var actual = new ValidationException(failures).Errors;
+        IDictionary<string, string[]> actual = new ValidationException(failures).Errors;
 
         actual.Keys.Should().BeEquivalentTo(new string[] { "Password", "Age" });
 

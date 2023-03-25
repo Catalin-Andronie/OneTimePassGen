@@ -32,9 +32,9 @@ public sealed class OneTimePassGenWebAppFactory : CustomWebApplicationFactory<Pr
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Test";
+        string environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Test";
 
-        var configuration = new ConfigurationBuilder()
+        IConfigurationRoot configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: false)
             .AddJsonFile($"appsettings.{environmentName}.json", optional: true)
@@ -43,8 +43,8 @@ public sealed class OneTimePassGenWebAppFactory : CustomWebApplicationFactory<Pr
         // Create a new connection string for each test run.
         // TODO: For now we only create unique connection strings for SqLite db. Add support for other database types.
         {
-            var databaseNamePrefix = Guid.NewGuid().ToString()[0..8];
-            var appDatabaseConnectionString = configuration["ConnectionStrings:DefaultConnection"];
+            string databaseNamePrefix = Guid.NewGuid().ToString()[0..8];
+            string appDatabaseConnectionString = configuration["ConnectionStrings:DefaultConnection"];
             configuration["ConnectionStrings:DefaultConnection"] = AppDbActions.SqliteUniqueConnectionString(appDatabaseConnectionString);
         }
 
@@ -72,12 +72,12 @@ public sealed class OneTimePassGenWebAppFactory : CustomWebApplicationFactory<Pr
 
     protected override async Task<string> GetAccessTokenAsync(HttpClient client, string userName, string password)
     {
-        var disco = await client.GetDiscoveryDocumentAsync();
+        DiscoveryDocumentResponse disco = await client.GetDiscoveryDocumentAsync();
 
         if (disco.IsError)
             throw new Exception(disco.Error);
 
-        var response = await client.RequestPasswordTokenAsync(new PasswordTokenRequest
+        TokenResponse response = await client.RequestPasswordTokenAsync(new PasswordTokenRequest
         {
             Address = disco.TokenEndpoint,
             ClientId = AppClientId,

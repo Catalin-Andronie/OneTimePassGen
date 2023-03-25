@@ -6,8 +6,9 @@ using Microsoft.Extensions.Logging;
 
 namespace OneTimePassGen.Application.Common.Behaviors;
 
-public sealed class LoggingRequestPreProcessor<TRequest> : IRequestPreProcessor<TRequest>
-    where TRequest : notnull
+public sealed class LoggingRequestPreProcessor<TRequest>
+    : IRequestPreProcessor<TRequest>
+        where TRequest : notnull
 {
     private readonly ILogger _logger;
     private readonly ICurrentUserService _currentUserService;
@@ -25,8 +26,8 @@ public sealed class LoggingRequestPreProcessor<TRequest> : IRequestPreProcessor<
 
     public async Task Process(TRequest request, CancellationToken cancellationToken)
     {
-        var requestName = typeof(TRequest).Name;
-        var userId = "Unknown";
+        string requestName = typeof(TRequest).Name;
+        string userId = "Unknown";
         string userName = "Anonymous";
 
         if (!string.IsNullOrEmpty(_currentUserService.UserId))

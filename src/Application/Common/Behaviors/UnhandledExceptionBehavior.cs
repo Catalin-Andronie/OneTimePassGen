@@ -4,8 +4,9 @@ using Microsoft.Extensions.Logging;
 
 namespace OneTimePassGen.Application.Common.Behaviors;
 
-internal sealed class UnhandledExceptionBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IRequest<TResponse>
+internal sealed class UnhandledExceptionBehavior<TRequest, TResponse>
+    : IPipelineBehavior<TRequest, TResponse>
+        where TRequest : IRequest<TResponse>
 {
     private readonly ILogger<TRequest> _logger;
 
@@ -22,7 +23,7 @@ internal sealed class UnhandledExceptionBehavior<TRequest, TResponse> : IPipelin
         }
         catch (Exception ex)
         {
-            var requestName = typeof(TRequest).Name;
+            string requestName = typeof(TRequest).Name;
 
             _logger.LogError(ex, "Exception on Request: '{@requestName}'.", requestName);
 

@@ -29,9 +29,9 @@ public sealed class Testing
     [OneTimeSetUp]
     public async Task RunBeforeAnyTests()
     {
-        var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Test";
+        string environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Test";
 
-        var configuration = new ConfigurationBuilder()
+        IConfigurationRoot configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: false)
             .AddJsonFile($"appsettings.{environmentName}.json", optional: true)
@@ -44,7 +44,7 @@ public sealed class Testing
             ? SqliteUniqueConnectionString(configuration[configurationName])
             : throw new ApplicationException($"Configuration '{configurationName}' is required");
 
-        var services = new ServiceCollection();
+        ServiceCollection services = new();
 
         services.AddSingleton<IConfiguration>(configuration);
 
@@ -64,39 +64,42 @@ public sealed class Testing
                                                               s.UtcNow == (CurrentDateTime ?? s.UtcNow)));
 
         // Replace service registration for IPasswordGenerator
-        ReplaceService(services, _ => {
-            var mock = new Mock<IPasswordGenerator>();
+        ReplaceService(services, _ =>
+        {
+            Mock<IPasswordGenerator> mock = new();
             mock.Setup(s => s.GeneratePassword()).Returns(GeneratedPasswordValue ?? string.Empty);
             return mock.Object;
         });
 
         ScopeFactory = services.BuildServiceProvider().GetRequiredService<IServiceScopeFactory>();
 
-        using var scope = ScopeFactory.CreateScope();
+        using IServiceScope scope = ScopeFactory.CreateScope();
         await EnsureDatabaseIsSetupAsync(scope.ServiceProvider).ConfigureAwait(false);
     }
 
     [OneTimeTearDown]
     public async Task RunAfterAnyTests()
     {
-        await using var scope = ScopeFactory.CreateAsyncScope();
+        await using AsyncServiceScope scope = ScopeFactory.CreateAsyncScope();
         await EnsureDatabaseIsTeardownAsync(scope.ServiceProvider).ConfigureAwait(false);
     }
 
     public static void ReplaceService<TService>(ServiceCollection services, Func<IServiceProvider, TService> implementationFactory)
     {
-        var serviceDescriptor = services.FirstOrDefault(_ => _.ServiceType == typeof(TService));
+        ServiceDescriptor? serviceDescriptor = services.FirstOrDefault(_ => _.ServiceType == typeof(TService));
         if (serviceDescriptor != null)
+        {
             services.Remove(serviceDescriptor);
+        }
 
         services.AddTransient(typeof(TService), services => implementationFactory(services)!);
     }
 
     public static async Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
     {
-        await using var scope = ScopeFactory.CreateAsyncScope();
+        await using AsyncServiceScope scope = ScopeFactory.CreateAsyncScope();
 
-        var mediator = scope.ServiceProvider.GetRequiredService<ISender>();
+        ISender mediator = scope.ServiceProvider.GetRequiredService<ISender>();
 
         return await mediator.Send(request);
     }
@@ -113,19 +116,23 @@ public sealed class Testing
 
     public static async Task<string> RunAsUserAsync(string userName, string password, string[] roles)
     {
-        await using var scope = ScopeFactory.CreateAsyncScope();
+        await using AsyncServiceScope scope = ScopeFactory.CreateAsyncScope();
 
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        UserManager<ApplicationUser> userManager = scope
+            .ServiceProvider
+            .GetRequiredService<UserManager<ApplicationUser>>();
 
-        var user = new ApplicationUser { UserName = userName, Email = userName };
+        ApplicationUser user = new() { UserName = userName, Email = userName };
 
-        var result = await userManager.CreateAsync(user, password);
+        IdentityResult result = await userManager.CreateAsync(user, password);
 
         if (roles.Length > 0)
         {
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            RoleManager<IdentityRole> roleManager = scope
+                .ServiceProvider
+                .GetRequiredService<RoleManager<IdentityRole>>();
 
-            foreach (var role in roles)
+            foreach (string role in roles)
             {
                 await roleManager.CreateAsync(new IdentityRole(role));
             }
@@ -140,16 +147,16 @@ public sealed class Testing
             return s_currentUserId;
         }
 
-        var errors = string.Join(Environment.NewLine, result.Errors.Select(e => e.Description));
+        string errors = string.Join(Environment.NewLine, result.Errors.Select(e => e.Description));
 
         throw new Exception($"Unable to create {userName}.{Environment.NewLine}{errors}");
     }
 
     public static async Task ResetDatabaseStateAsync()
     {
-        await using var scope = ScopeFactory.CreateAsyncScope();
+        await using AsyncServiceScope scope = ScopeFactory.CreateAsyncScope();
 
-        var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+        IConfiguration configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
         await EnsureDatabaseIsTeardownAsync(scope.ServiceProvider).ConfigureAwait(false);
         await EnsureDatabaseIsSetupAsync(scope.ServiceProvider).ConfigureAwait(false);
 
@@ -164,9 +171,9 @@ public sealed class Testing
     public static async Task<TEntity?> FindAsync<TEntity>(params object[] keyValues)
         where TEntity : class
     {
-        await using var scope = ScopeFactory.CreateAsyncScope();
+        await using AsyncServiceScope scope = ScopeFactory.CreateAsyncScope();
 
-        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        ApplicationDbContext context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         return await context.FindAsync<TEntity>(keyValues).ConfigureAwait(false);
     }
@@ -174,9 +181,9 @@ public sealed class Testing
     public static async Task AddAsync<TEntity>(TEntity entity)
         where TEntity : class
     {
-        await using var scope = ScopeFactory.CreateAsyncScope();
+        await using AsyncServiceScope scope = ScopeFactory.CreateAsyncScope();
 
-        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        ApplicationDbContext context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         context.Add(entity);
 
@@ -185,9 +192,9 @@ public sealed class Testing
 
     public static async Task<int> CountAsync<TEntity>() where TEntity : class
     {
-        await using var scope = ScopeFactory.CreateAsyncScope();
+        await using AsyncServiceScope scope = ScopeFactory.CreateAsyncScope();
 
-        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        ApplicationDbContext context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         return await context.Set<TEntity>().CountAsync().ConfigureAwait(false);
     }
@@ -197,9 +204,9 @@ public sealed class Testing
 
     private static async Task EnsureDatabaseIsTeardownAsync(IServiceProvider serviceProvider)
     {
-        await using var scope = serviceProvider.CreateAsyncScope();
+        await using AsyncServiceScope scope = serviceProvider.CreateAsyncScope();
 
-        var appDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        ApplicationDbContext appDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         await appDbContext.Database.EnsureDeletedAsync();
     }
 
@@ -208,7 +215,7 @@ public sealed class Testing
         if (string.IsNullOrEmpty(connectionString))
             throw new ArgumentNullException(nameof(connectionString));
 
-        var connectionOptions = new SqliteConnectionStringBuilder(connectionString);
+        SqliteConnectionStringBuilder connectionOptions = new(connectionString);
         connectionOptions.DataSource = $"{connectionOptions.DataSource}_{Guid.NewGuid().ToString()[0..8]}";
         return connectionOptions.ToString();
     }

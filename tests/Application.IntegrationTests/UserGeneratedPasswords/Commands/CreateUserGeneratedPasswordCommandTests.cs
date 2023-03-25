@@ -16,7 +16,7 @@ public sealed class CreateUserGeneratedPasswordCommandTests : TestBase
     [Test]
     public async Task CreateUserGeneratedPasswordCommand_Should_NotThrown_ValidationException()
     {
-        var command = new CreateUserGeneratedPasswordCommand();
+        CreateUserGeneratedPasswordCommand command = new();
 
         await FluentActions.Invoking(() =>
             SendAsync(command)).Should().NotThrowAsync<ValidationException>();
@@ -28,13 +28,13 @@ public sealed class CreateUserGeneratedPasswordCommandTests : TestBase
         CurrentDateTime = new DateTimeOffset(2020, 08, 05, 16, 45, 23, 545, new TimeSpan(2, 0, 0));
         GeneratedPasswordValue = "generated-password";
 
-        var userId = await RunAsDefaultUserAsync();
+        string userId = await RunAsDefaultUserAsync();
 
-        var command = new CreateUserGeneratedPasswordCommand();
+        CreateUserGeneratedPasswordCommand command = new();
 
-        var entryId = await SendAsync(command);
+        Guid entryId = await SendAsync(command);
 
-        var entry = await FindAsync<UserGeneratedPassword>(entryId);
+        UserGeneratedPassword? entry = await FindAsync<UserGeneratedPassword>(entryId);
 
         entry.Should().NotBeNull();
         entry!.Id.Should().NotBeEmpty();

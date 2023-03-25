@@ -103,22 +103,34 @@ public static class ApplicationExtensions
 
     public static async Task ApplyDatabaseMigrationsAsync(this IServiceProvider serviceProvider)
     {
-        await using var scope = serviceProvider.CreateAsyncScope();
+        await using AsyncServiceScope scope = serviceProvider.CreateAsyncScope();
 
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<ApplicationDbContext>>();
-        using var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        ILogger<ApplicationDbContext> logger = scope
+            .ServiceProvider
+            .GetRequiredService<ILogger<ApplicationDbContext>>();
+
+        using ApplicationDbContext dbContext = scope
+            .ServiceProvider
+            .GetRequiredService<ApplicationDbContext>();
+
         try
         {
             if (dbContext.Database.IsSqlite())
             {
-                await dbContext.Database.EnsureCreatedAsync().ConfigureAwait(false);
+                await dbContext
+                    .Database
+                    .EnsureCreatedAsync()
+                    .ConfigureAwait(false);
             }
             else
             {
                 // NOTE: We want to ensure that all migrations are added into the
                 //       database, we call `MigrateAsync` method to run our custom
                 //       migrations.
-                await dbContext.Database.MigrateAsync().ConfigureAwait(false);
+                await dbContext
+                    .Database
+                    .MigrateAsync()
+                    .ConfigureAwait(false);
             }
             logger.LogInformation("Database was created/migrated successfully.");
         }

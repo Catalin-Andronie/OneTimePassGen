@@ -8,8 +8,9 @@ using Microsoft.Extensions.Logging;
 
 namespace OneTimePassGen.Application.Common.Behaviors;
 
-internal sealed class PerformanceBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IRequest<TResponse>
+internal sealed class PerformanceBehavior<TRequest, TResponse>
+    : IPipelineBehavior<TRequest, TResponse>
+        where TRequest : IRequest<TResponse>
 {
     private readonly Stopwatch _timer;
     private readonly ILogger<TRequest> _logger;
@@ -31,32 +32,37 @@ internal sealed class PerformanceBehavior<TRequest, TResponse> : IPipelineBehavi
         _configuration = configuration;
     }
 
-    public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+    public async Task<TResponse> Handle(
+        TRequest request,
+        CancellationToken cancellationToken,
+        RequestHandlerDelegate<TResponse> next)
     {
         _timer.Start();
 
-        var response = await next().ConfigureAwait(false);
+        TResponse? response = await next().ConfigureAwait(false);
 
         _timer.Stop();
 
-        var elapsedMilliseconds = _timer.ElapsedMilliseconds;
+        long elapsedMilliseconds = _timer.ElapsedMilliseconds;
 
-        var longRunningRequestLimitMilliseconds = _configuration.GetLongRunningRequestLimitMilliseconds();
+        double longRunningRequestLimitMilliseconds = _configuration.GetLongRunningRequestLimitMilliseconds();
 
         if (elapsedMilliseconds >= longRunningRequestLimitMilliseconds)
         {
-            var requestName = typeof(TRequest).Name;
-            var userId = "Unknown";
+            string requestName = typeof(TRequest).Name;
+            string userId = "Unknown";
             string userName = "Anonymous";
 
             if (!string.IsNullOrEmpty(_currentUserService.UserId))
             {
                 userId = _currentUserService.UserId;
-                userName = await _identityService.GetUserNameAsync(userId).ConfigureAwait(false);
+                userName = await _identityService
+                    .GetUserNameAsync(userId)
+                    .ConfigureAwait(false);
             }
 
             _logger.LogWarning(
-                "Long Running Request: '{@RequestName}' took ({@ElapsedMilliseconds} ms) and limit is ({@LongRunningRequestLimitMilliseconds} ms). Request made by user `{@UserName}` with identifier '{@UserId}'.",
+                message: "Long Running Request: '{@RequestName}' took ({@ElapsedMilliseconds} ms) and limit is ({@LongRunningRequestLimitMilliseconds} ms). Request made by user `{@UserName}` with identifier '{@UserId}'.",
                 requestName, elapsedMilliseconds, longRunningRequestLimitMilliseconds, userName, userId);
         }
 

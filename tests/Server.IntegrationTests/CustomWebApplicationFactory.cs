@@ -11,16 +11,16 @@ public abstract class CustomWebApplicationFactory<TStartup> : WebApplicationFact
 
     public Task<HttpClient> GetAnonymousClientAsync()
     {
-        var client = CreateClient();
+        HttpClient client = CreateClient();
 
         return Task.FromResult(client);
     }
 
     public async Task<HttpClient> GetAuthenticatedClientAsync(string userName, string password)
     {
-        var client = CreateClient();
+        HttpClient client = CreateClient();
 
-        var token = await GetAccessTokenAsync(client, userName, password);
+        string token = await GetAccessTokenAsync(client, userName, password);
 
         client.SetBearerToken(token);
 
