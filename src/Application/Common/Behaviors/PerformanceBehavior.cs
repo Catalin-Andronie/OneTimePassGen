@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics;
 
-using OneTimePassGen.Application.Common.Interfaces;
-
 using MediatR;
 
 using Microsoft.Extensions.Logging;
+
+using OneTimePassGen.Application.Common.Interfaces;
 
 namespace OneTimePassGen.Application.Common.Behaviors;
 

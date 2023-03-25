@@ -1,15 +1,15 @@
-﻿using OneTimePassGen.Application.Common.Behaviors;
-using OneTimePassGen.Application.Common.Exceptions;
-using OneTimePassGen.Application.Common.Interfaces;
-using OneTimePassGen.Application.Common.Security;
-
-using FluentAssertions;
+﻿using FluentAssertions;
 
 using MediatR;
 
 using Moq;
 
 using NUnit.Framework;
+
+using OneTimePassGen.Application.Common.Behaviors;
+using OneTimePassGen.Application.Common.Exceptions;
+using OneTimePassGen.Application.Common.Interfaces;
+using OneTimePassGen.Application.Common.Security;
 
 namespace OneTimePassGen.Application.UnitTests.Common.Behaviors;
 

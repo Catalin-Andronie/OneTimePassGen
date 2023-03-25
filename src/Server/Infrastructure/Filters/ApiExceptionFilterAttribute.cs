@@ -1,7 +1,7 @@
-﻿using OneTimePassGen.Application.Common.Exceptions;
-
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+
+using OneTimePassGen.Application.Common.Exceptions;
 
 namespace OneTimePassGen.Server.Infrastructure.Filters;
 

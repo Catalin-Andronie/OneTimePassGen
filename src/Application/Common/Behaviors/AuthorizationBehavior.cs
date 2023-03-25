@@ -1,10 +1,10 @@
 ﻿using System.Reflection;
 
+using MediatR;
+
 using OneTimePassGen.Application.Common.Exceptions;
 using OneTimePassGen.Application.Common.Interfaces;
 using OneTimePassGen.Application.Common.Security;
-
-using MediatR;
 
 namespace OneTimePassGen.Application.Common.Behaviors;
 

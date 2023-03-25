@@ -1,8 +1,8 @@
-﻿using OneTimePassGen.Application.Common.Interfaces;
-
-using MediatR.Pipeline;
+﻿using MediatR.Pipeline;
 
 using Microsoft.Extensions.Logging;
+
+using OneTimePassGen.Application.Common.Interfaces;
 
 namespace OneTimePassGen.Application.Common.Behaviors;
 

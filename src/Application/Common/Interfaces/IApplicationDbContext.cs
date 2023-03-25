@@ -1,6 +1,6 @@
-﻿using OneTimePassGen.Domain.Entities;
+﻿using Microsoft.EntityFrameworkCore;
 
-using Microsoft.EntityFrameworkCore;
+using OneTimePassGen.Domain.Entities;
 
 namespace OneTimePassGen.Application.Common.Interfaces;
 
