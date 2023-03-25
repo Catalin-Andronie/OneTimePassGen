@@ -44,7 +44,7 @@ public sealed class OneTimePassGenWebAppFactory : CustomWebApplicationFactory<Pr
         // TODO: For now we only create unique connection strings for SqLite db. Add support for other database types.
         {
             string databaseNamePrefix = Guid.NewGuid().ToString()[0..8];
-            string appDatabaseConnectionString = configuration["ConnectionStrings:DefaultConnection"];
+            string appDatabaseConnectionString = configuration["ConnectionStrings:DefaultConnection"]!;
             configuration["ConnectionStrings:DefaultConnection"] = AppDbActions.SqliteUniqueConnectionString(appDatabaseConnectionString);
         }
 

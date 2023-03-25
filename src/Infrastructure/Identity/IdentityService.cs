@@ -24,14 +24,14 @@ internal sealed class IdentityService : IIdentityService
         _authorizationService = authorizationService;
     }
 
-    public async Task<string> GetUserNameAsync(string userId)
+    public async Task<string?> GetUserNameAsync(string userId)
     {
         ApplicationUser user = await _userManager
             .Users
             .FirstAsync(u => u.Id == userId)
             .ConfigureAwait(false);
 
-        return user.UserName;
+        return user?.UserName;
     }
 
     public async Task<(Result Result, string UserId)> CreateUserAsync(

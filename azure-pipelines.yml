@@ -20,7 +20,7 @@ steps:
     displayName: "Use .NET SDK"
     inputs:
       packageType: sdk
-      version: "6.x"
+      version: "7.x"
 
   - script: "dotnet tool restore"
     displayName: "Restore tools"

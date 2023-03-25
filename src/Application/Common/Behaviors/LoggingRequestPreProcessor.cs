@@ -33,7 +33,9 @@ public sealed class LoggingRequestPreProcessor<TRequest>
         if (!string.IsNullOrEmpty(_currentUserService.UserId))
         {
             userId = _currentUserService.UserId;
-            userName = await _identityService.GetUserNameAsync(userId).ConfigureAwait(false);
+            userName = await _identityService
+                .GetUserNameAsync(userId)
+                .ConfigureAwait(false) ?? userName;
         }
 
         _logger.LogInformation("Request: '{RequestName}' made by user `{@UserName}` with identifier `{@UserId}`.", requestName, userName, userId);

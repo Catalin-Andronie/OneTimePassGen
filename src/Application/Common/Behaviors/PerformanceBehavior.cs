@@ -58,7 +58,7 @@ internal sealed class PerformanceBehavior<TRequest, TResponse>
                 userId = _currentUserService.UserId;
                 userName = await _identityService
                     .GetUserNameAsync(userId)
-                    .ConfigureAwait(false);
+                    .ConfigureAwait(false) ?? userName;
             }
 
             _logger.LogWarning(
