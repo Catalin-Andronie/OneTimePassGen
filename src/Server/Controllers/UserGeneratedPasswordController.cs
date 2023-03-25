@@ -24,7 +24,7 @@ public sealed class UserGeneratedPasswordController : ApiControllerBase
         [FromQuery] bool? includeExpiredPasswords,
         CancellationToken cancellationToken = default)
     {
-        var getAllRequest = new GetUserGeneratedPasswordsQuery(includeExpiredPasswords);
+        GetUserGeneratedPasswordsQuery getAllRequest = new(includeExpiredPasswords);
         return await Mediator.Send(getAllRequest, cancellationToken);
     }
 
@@ -39,8 +39,8 @@ public sealed class UserGeneratedPasswordController : ApiControllerBase
         [FromQuery] bool? includeExpiredPasswords,
         CancellationToken cancellationToken = default)
     {
-        var getRequest = new GetUserGeneratedPasswordQuery(generatedPasswordId, includeExpiredPasswords);
-        var userGeneratedPasswordItem = await Mediator.Send(getRequest, cancellationToken);
+        GetUserGeneratedPasswordQuery getRequest = new(generatedPasswordId, includeExpiredPasswords);
+        UserGeneratedPasswordItem? userGeneratedPasswordItem = await Mediator.Send(getRequest, cancellationToken);
 
         return userGeneratedPasswordItem ?? (ActionResult<UserGeneratedPasswordItem>)NotFound();
     }
@@ -55,12 +55,12 @@ public sealed class UserGeneratedPasswordController : ApiControllerBase
         CreateUserGeneratedPasswordCommand createCommand,
         CancellationToken cancellationToken = default)
     {
-        var generatedPasswordId = await Mediator.Send(createCommand, cancellationToken);
+        Guid generatedPasswordId = await Mediator.Send(createCommand, cancellationToken);
         if (generatedPasswordId == Guid.Empty)
             return NoContent();
 
-        var getRequest = new GetUserGeneratedPasswordQuery(generatedPasswordId, includeExpiredPasswords: false);
-        var userGeneratedPasswordItem = await Mediator.Send(getRequest, cancellationToken);
+        GetUserGeneratedPasswordQuery getRequest = new(generatedPasswordId, includeExpiredPasswords: false);
+        UserGeneratedPasswordItem? userGeneratedPasswordItem = await Mediator.Send(getRequest, cancellationToken);
 
         return CreatedAtAction(nameof(GetUserPasswordAsync), new { userGeneratedPasswordItem?.Id }, userGeneratedPasswordItem);
     }

@@ -14,8 +14,9 @@ public class ValidationException : Exception
     public ValidationException(IEnumerable<ValidationFailure> failures)
         : base("One or more validation failures have occurred.")
     {
-        var errors = failures?.GroupBy(e => e.PropertyName, e => e.ErrorMessage, StringComparer.Ordinal)
-                          .ToDictionary(failureGroup => failureGroup.Key, failureGroup => failureGroup.ToArray(), StringComparer.Ordinal);
+        Dictionary<string, string[]>? errors = failures?
+            .GroupBy(e => e.PropertyName, e => e.ErrorMessage, StringComparer.Ordinal)
+            .ToDictionary(failureGroup => failureGroup.Key, failureGroup => failureGroup.ToArray(), StringComparer.Ordinal);
 
         Errors = errors ?? new Dictionary<string, string[]>(StringComparer.Ordinal);
     }

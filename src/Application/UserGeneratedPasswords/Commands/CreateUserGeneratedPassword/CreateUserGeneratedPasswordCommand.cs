@@ -8,11 +8,13 @@ namespace OneTimePassGen.Application.UserGeneratedPasswords.Commands.CreateUserG
 #pragma warning disable MA0048 // File name must match type name
 
 [Authorize]
-public sealed class CreateUserGeneratedPasswordCommand : IRequest<Guid>
+public sealed class CreateUserGeneratedPasswordCommand
+    : IRequest<Guid>
 {
 }
 
-internal sealed class CreateUserGeneratedPasswordCommandHandler : IRequestHandler<CreateUserGeneratedPasswordCommand, Guid>
+internal sealed class CreateUserGeneratedPasswordCommandHandler
+    : IRequestHandler<CreateUserGeneratedPasswordCommand, Guid>
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ICurrentUserService _currentUserService;
@@ -34,17 +36,21 @@ internal sealed class CreateUserGeneratedPasswordCommandHandler : IRequestHandle
         _passwordGenerator = passwordGenerator;
     }
 
-    public async Task<Guid> Handle(CreateUserGeneratedPasswordCommand request, CancellationToken cancellationToken = default)
+    public async Task<Guid> Handle(
+        CreateUserGeneratedPasswordCommand request,
+        CancellationToken cancellationToken = default)
     {
-        string currentUserId = _currentUserService.UserId ?? throw new UnauthorizedAccessException("User unauthorized to execute this action.");
+        string currentUserId = _currentUserService.UserId
+            ?? throw new UnauthorizedAccessException("User unauthorized to execute this action.");
+
         // TODO: Decouple away the password generation so that we can provide any implementations.
         string passwordValue = _passwordGenerator.GeneratePassword();
-        var now = _dateTime.Now;
+        DateTimeOffset now = _dateTime.Now;
 
-        var generatedPasswordExpirationSeconds = _configuration.GetGeneratedPasswordExpirationSeconds();
-        var expiresAt = now.AddSeconds(generatedPasswordExpirationSeconds);
+        int generatedPasswordExpirationSeconds = _configuration.GetGeneratedPasswordExpirationSeconds();
+        DateTimeOffset expiresAt = now.AddSeconds(generatedPasswordExpirationSeconds);
 
-        var generatedPassword = new UserGeneratedPassword
+        UserGeneratedPassword generatedPassword = new()
         {
             Id = Guid.NewGuid(),
             UserId = currentUserId,
@@ -53,8 +59,15 @@ internal sealed class CreateUserGeneratedPasswordCommandHandler : IRequestHandle
             ExpiersAt = expiresAt
         };
 
-        await _dbContext.UserGeneratedPasswords.AddAsync(generatedPassword, cancellationToken).ConfigureAwait(false);
-        await _dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await _dbContext
+            .UserGeneratedPasswords
+            .AddAsync(generatedPassword, cancellationToken)
+            .ConfigureAwait(false);
+
+        await _dbContext
+            .SaveChangesAsync(cancellationToken)
+            .ConfigureAwait(false);
+
         return generatedPassword.Id;
     }
 }

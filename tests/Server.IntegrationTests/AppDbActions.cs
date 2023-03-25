@@ -20,7 +20,7 @@ internal static class AppDbActions
         if (string.IsNullOrEmpty(databaseNamePrefix))
             databaseNamePrefix = Guid.NewGuid().ToString()[0..8];
 
-        var connectionOptions = new SqliteConnectionStringBuilder(connectionString);
+        SqliteConnectionStringBuilder connectionOptions = new(connectionString);
         connectionOptions.DataSource = $"{connectionOptions.DataSource}_{databaseNamePrefix}";
         return connectionOptions.ToString();
     }
@@ -30,12 +30,16 @@ internal static class AppDbActions
 
     public static async Task SeedTestUsersAsync(IServiceProvider provider)
     {
-        await using var scope = provider.CreateAsyncScope();
+        await using AsyncServiceScope scope = provider.CreateAsyncScope();
 
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        // TODO: Instead of hardcoding the default list of user here, we should have a type which hold this info.
+        UserManager<ApplicationUser> userManager = scope
+            .ServiceProvider
+            .GetRequiredService<UserManager<ApplicationUser>>();
+
+        // TODO: Instead of hardcoding the default list of user here, we should have a type to hold it.
         const string defaultUserPassword = "Password12!";
-        var defaultUsers = new ApplicationUser[]
+
+        ApplicationUser[] defaultUsers = new[]
         {
             new ApplicationUser
             {
@@ -45,57 +49,75 @@ internal static class AppDbActions
                 LockoutEnabled = false
             }
         };
-        foreach (var defaultUser in defaultUsers)
+
+        foreach (ApplicationUser defaultUser in defaultUsers)
         {
-            var userExist = await userManager.FindByIdAsync(defaultUser.Id).ConfigureAwait(false) is not null;
+            bool userExist = await userManager
+                .FindByIdAsync(defaultUser.Id)
+                .ConfigureAwait(false) is not null;
+
             if (!userExist)
             {
-                await userManager.CreateAsync(defaultUser, defaultUserPassword).ConfigureAwait(false);
+                await userManager
+                    .CreateAsync(defaultUser, defaultUserPassword)
+                    .ConfigureAwait(false);
             }
         }
     }
 
     public static void EnsureDatabaseIsSetup(IServiceProvider provider)
-        => EnsureDatabaseIsSetupAsync(provider).ConfigureAwait(false).GetAwaiter().GetResult();
+    {
+        EnsureDatabaseIsSetupAsync(provider)
+            .ConfigureAwait(false)
+            .GetAwaiter()
+            .GetResult();
+    }
 
     public static Task EnsureDatabaseIsSetupAsync(IServiceProvider provider)
-    {
-        return provider.ApplyDatabaseMigrationsAsync();
-    }
+        => provider.ApplyDatabaseMigrationsAsync();
 
     public static void EnsureDatabaseIsTeardown(IServiceProvider provider)
         => EnsureDatabaseIsTeardownAsync(provider).ConfigureAwait(false).GetAwaiter().GetResult();
 
     public static Task EnsureDatabaseIsTeardownAsync(IServiceProvider provider)
-    {
-        return EnsureDatabaseIsTeardownAsync<ApplicationDbContext>(provider);
-    }
+        => EnsureDatabaseIsTeardownAsync<ApplicationDbContext>(provider);
 
     public static async Task EnsureDatabaseIsTeardownAsync<TContext>(IServiceProvider provider)
         where TContext : DbContext
     {
-        await using var scope = provider.CreateAsyncScope();
+        await using AsyncServiceScope scope = provider.CreateAsyncScope();
 
-        var appDbContext = scope.ServiceProvider.GetRequiredService<TContext>();
-        await appDbContext.Database.EnsureDeletedAsync().ConfigureAwait(false);
+        TContext appDbContext = scope
+            .ServiceProvider
+            .GetRequiredService<TContext>();
+
+        await appDbContext
+            .Database
+            .EnsureDeletedAsync()
+            .ConfigureAwait(false);
     }
 
     public static async Task<TEntity?> FindEntityAsync<TContext, TEntity>(IServiceProvider provider, Expression<Func<TEntity, bool>> predicate)
         where TContext : DbContext
         where TEntity : class
     {
-        await using var scope = provider.CreateAsyncScope();
+        await using AsyncServiceScope scope = provider.CreateAsyncScope();
 
-        var context = scope.ServiceProvider.GetRequiredService<TContext>();
+        TContext context = scope
+            .ServiceProvider
+            .GetRequiredService<TContext>();
 
-        return await context.Set<TEntity>().FirstOrDefaultAsync(predicate).ConfigureAwait(false);
+        return await context
+            .Set<TEntity>()
+            .FirstOrDefaultAsync(predicate)
+            .ConfigureAwait(false);
     }
 
     public static async Task<TEntity> EnsureFindEntityAsync<TContext, TEntity>(IServiceProvider provider, Expression<Func<TEntity, bool>> predicate)
         where TContext : DbContext
         where TEntity : class
     {
-        var entity = await FindEntityAsync<TContext, TEntity>(provider, predicate).ConfigureAwait(false);
+        TEntity? entity = await FindEntityAsync<TContext, TEntity>(provider, predicate).ConfigureAwait(false);
         return entity ?? throw new Exception($"Entity '{typeof(TEntity)}' could not be found.");
     }
 
@@ -106,20 +128,25 @@ internal static class AppDbActions
         if (entities == null)
             throw new ArgumentNullException(nameof(entities));
 
-        await using var scope = provider.CreateAsyncScope();
+        await using AsyncServiceScope scope = provider.CreateAsyncScope();
 
-        var context = scope.ServiceProvider.GetRequiredService<TContext>();
+        TContext context = scope
+            .ServiceProvider
+            .GetRequiredService<TContext>();
 
         context.Set<TEntity>().AddRange(entities);
 
-        return await context.SaveChangesAsync().ConfigureAwait(false);
+        return await context
+            .SaveChangesAsync()
+            .ConfigureAwait(false);
     }
 
     public static async Task EnsureAddEntitiesAsync<TContext, TEntity>(IServiceProvider provider, int expectedItemsSaved, params TEntity[] entities)
         where TContext : DbContext
         where TEntity : class
     {
-        var itemsSaved = await AddEntitiesAsync<TContext, TEntity>(provider, entities).ConfigureAwait(false);
+        int itemsSaved = await AddEntitiesAsync<TContext, TEntity>(provider, entities).ConfigureAwait(false);
+
         if (itemsSaved != expectedItemsSaved)
         {
             throw new Exception($"Only {itemsSaved} out of {entities.Length} '{typeof(TEntity)}' entities saved.");
@@ -128,10 +155,15 @@ internal static class AppDbActions
 
     public static async Task<int> CountEntitiesAsync<TEntity>(IServiceProvider provider) where TEntity : class
     {
-        await using var scope = provider.CreateAsyncScope();
+        await using AsyncServiceScope scope = provider.CreateAsyncScope();
 
-        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        ApplicationDbContext context = scope
+            .ServiceProvider
+            .GetRequiredService<ApplicationDbContext>();
 
-        return await context.Set<TEntity>().CountAsync().ConfigureAwait(false);
+        return await context
+            .Set<TEntity>()
+            .CountAsync()
+            .ConfigureAwait(false);
     }
 }

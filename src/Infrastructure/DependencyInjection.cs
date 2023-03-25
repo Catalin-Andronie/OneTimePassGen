@@ -14,7 +14,7 @@ public static class DependencyInjection
 {
     public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection")
+        string connectionString = configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
         services.AddDbContext<ApplicationDbContext>(
@@ -22,7 +22,7 @@ public static class DependencyInjection
 
         services.AddTransient<IApplicationConfiguration, ApplicationConfiguration>((serviceProvider) =>
         {
-            var cfg = serviceProvider.GetRequiredService<IConfiguration>();
+            IConfiguration cfg = serviceProvider.GetRequiredService<IConfiguration>();
             return new ApplicationConfiguration(cfg);
         });
 

@@ -29,9 +29,10 @@ public sealed class AuthorizationBehaviorTests
     public async Task AuthorizationBehavior_ShouldCall_NextHandler_When_UnauthorizedQuery_AnonymousUser()
     {
         // Arrange
-        var authBehavior = new AuthorizationBehavior<UnauthorizedQuery, Unit>(currentUserService: null!, identityService: null!);
+        AuthorizationBehavior<UnauthorizedQuery, Unit> authBehavior = new(currentUserService: null!, identityService: null!);
 
-        var nextHandlerWasTriggered = false;
+        bool nextHandlerWasTriggered = false;
+
         Task<Unit> Next()
         {
             nextHandlerWasTriggered = true;
@@ -39,34 +40,53 @@ public sealed class AuthorizationBehaviorTests
         }
 
         // Act
-        await authBehavior.Handle(new UnauthorizedQuery(), new CancellationToken(), Next);
+        await authBehavior.Handle(
+            request: new UnauthorizedQuery(),
+            cancellationToken: new CancellationToken(),
+            next: Next);
 
         // Assert
-        nextHandlerWasTriggered.Should().BeTrue();
+        nextHandlerWasTriggered
+            .Should()
+            .BeTrue();
     }
 
     [Test]
     public async Task AuthorizationBehavior_ShouldThrow_UnauthorizedAccessException_When_AuthorizedOnlyQuery_AnonymousUser()
     {
         // Arrange
-        _currentUserService.Setup(x => x.UserId).Returns((string)null!);
-        var authBehavior = new AuthorizationBehavior<AuthorizedOnlyQuery, Unit>(_currentUserService.Object, identityService: null!);
+        _currentUserService
+            .Setup(x => x.UserId)
+            .Returns((string)null!);
+
+        AuthorizationBehavior<AuthorizedOnlyQuery, Unit> authBehavior
+            = new(currentUserService: _currentUserService.Object, identityService: null!);
 
         // Act
-        var request = authBehavior.Handle(new AuthorizedOnlyQuery(), new CancellationToken(), next: null!);
+        Task<Unit> request = authBehavior.Handle(
+            request: new AuthorizedOnlyQuery(),
+            cancellationToken: new CancellationToken(),
+            next: null!);
 
         // Assert
-        await FluentActions.Invoking(() => request).Should().ThrowAsync<UnauthorizedAccessException>();
+        await FluentActions
+            .Invoking(() => request)
+            .Should()
+            .ThrowAsync<UnauthorizedAccessException>();
     }
 
     [Test]
     public async Task AuthorizationBehavior_ShouldCall_NextHandler_When_AuthorizedOnlyQuery_AuthenticatedUser()
     {
         // Arrange
-        _currentUserService.Setup(x => x.UserId).Returns(Guid.NewGuid().ToString());
-        var authBehavior = new AuthorizationBehavior<AuthorizedOnlyQuery, Unit>(_currentUserService.Object, identityService: null!);
+        _currentUserService
+            .Setup(x => x.UserId)
+            .Returns(Guid.NewGuid().ToString());
 
-        var nextHandlerWasTriggered = false;
+        AuthorizationBehavior<AuthorizedOnlyQuery, Unit> authBehavior
+            = new(currentUserService: _currentUserService.Object, identityService: null!);
+
+        bool nextHandlerWasTriggered = false;
 
         Task<Unit> Next()
         {
@@ -75,10 +95,15 @@ public sealed class AuthorizationBehaviorTests
         }
 
         // Act
-        var request = await authBehavior.Handle(new AuthorizedOnlyQuery(), new CancellationToken(), Next);
+        Unit request = await authBehavior.Handle(
+            request: new AuthorizedOnlyQuery(),
+            cancellationToken: new CancellationToken(),
+            next: Next);
 
         // Assert
-        nextHandlerWasTriggered.Should().BeTrue();
+        nextHandlerWasTriggered
+            .Should()
+            .BeTrue();
     }
 
     [Test]
@@ -86,13 +111,24 @@ public sealed class AuthorizationBehaviorTests
     {
         // Arrange
         const string roleName = "Admin";
-        var userId = Guid.NewGuid().ToString();
-        _currentUserService.Setup(x => x.UserId).Returns(userId);
-        _identityService.Setup(_ => _.IsInRoleAsync(userId, roleName)).Returns(Task.FromResult(true));
-        var authBehavior = new AuthorizationBehavior<AdminRoleQuery, Unit>(_currentUserService.Object, _identityService.Object);
+        string userId = Guid.NewGuid().ToString();
+
+        _currentUserService
+            .Setup(x => x.UserId)
+            .Returns(userId);
+
+        _identityService
+            .Setup(_ => _.IsInRoleAsync(userId, roleName))
+            .Returns(Task.FromResult(true));
+
+        AuthorizationBehavior<AdminRoleQuery, Unit> authBehavior
+            = new(currentUserService: _currentUserService.Object, identityService: _identityService.Object);
 
         // Act
-        await authBehavior.Handle(new AdminRoleQuery(), new CancellationToken(), () => Task.FromResult(Unit.Value));
+        await authBehavior.Handle(
+            request: new AdminRoleQuery(),
+            cancellationToken: new CancellationToken(),
+            next: () => Task.FromResult(Unit.Value));
 
         // Assert
         _identityService.Verify(i => i.IsInRoleAsync(userId, roleName), Times.Once);
@@ -102,16 +138,30 @@ public sealed class AuthorizationBehaviorTests
     {
         // Arrange
         const string roleName = "Admin";
-        var userId = Guid.NewGuid().ToString();
-        _currentUserService.Setup(x => x.UserId).Returns(userId);
-        _identityService.Setup(_ => _.IsInRoleAsync(userId, roleName)).Returns(Task.FromResult(false));
-        var authBehavior = new AuthorizationBehavior<AdminRoleQuery, Unit>(_currentUserService.Object, _identityService.Object);
+        string userId = Guid.NewGuid().ToString();
+
+        _currentUserService
+            .Setup(x => x.UserId)
+            .Returns(userId);
+
+        _identityService
+            .Setup(_ => _.IsInRoleAsync(userId, roleName))
+            .Returns(Task.FromResult(false));
+
+        AuthorizationBehavior<AdminRoleQuery, Unit> authBehavior
+            = new(currentUserService: _currentUserService.Object, identityService: _identityService.Object);
 
         // Act
-        var request = authBehavior.Handle(new AdminRoleQuery(), new CancellationToken(), () => Task.FromResult(Unit.Value));
+        Task<Unit> request = authBehavior.Handle(
+            request: new AdminRoleQuery(),
+            cancellationToken: new CancellationToken(),
+            next: () => Task.FromResult(Unit.Value));
 
         // Assert
-        await FluentActions.Invoking(() => request).Should().ThrowAsync<ForbiddenAccessException>();
+        await FluentActions
+            .Invoking(() => request)
+            .Should()
+            .ThrowAsync<ForbiddenAccessException>();
     }
 
     [Test]
@@ -119,13 +169,24 @@ public sealed class AuthorizationBehaviorTests
     {
         // Arrange
         const string policyName = "AdminPolicy";
-        var userId = Guid.NewGuid().ToString();
-        _currentUserService.Setup(x => x.UserId).Returns(userId);
-        _identityService.Setup(_ => _.AuthorizeAsync(userId, policyName)).Returns(Task.FromResult(true));
-        var authBehavior = new AuthorizationBehavior<AdminPolicyQuery, Unit>(_currentUserService.Object, _identityService.Object);
+        string userId = Guid.NewGuid().ToString();
+
+        _currentUserService
+            .Setup(x => x.UserId)
+            .Returns(userId);
+
+        _identityService
+            .Setup(_ => _.AuthorizeAsync(userId, policyName))
+            .Returns(Task.FromResult(true));
+
+        AuthorizationBehavior<AdminPolicyQuery, Unit> authBehavior
+            = new(currentUserService: _currentUserService.Object, identityService: _identityService.Object);
 
         // Act
-        await authBehavior.Handle(new AdminPolicyQuery(), new CancellationToken(), () => Task.FromResult(Unit.Value));
+        await authBehavior.Handle(
+            request: new AdminPolicyQuery(),
+            cancellationToken: new CancellationToken(),
+            next: () => Task.FromResult(Unit.Value));
 
         // Assert
         _identityService.Verify(i => i.AuthorizeAsync(userId, policyName), Times.Once);
@@ -136,16 +197,30 @@ public sealed class AuthorizationBehaviorTests
     {
         // Arrange
         const string policyName = "AdminPolicy";
-        var userId = Guid.NewGuid().ToString();
-        _currentUserService.Setup(x => x.UserId).Returns(userId);
-        _identityService.Setup(_ => _.AuthorizeAsync(userId, policyName)).Returns(Task.FromResult(false));
-        var authBehavior = new AuthorizationBehavior<AdminPolicyQuery, Unit>(_currentUserService.Object, _identityService.Object);
+        string userId = Guid.NewGuid().ToString();
+
+        _currentUserService
+            .Setup(x => x.UserId)
+            .Returns(userId);
+
+        _identityService
+            .Setup(_ => _.AuthorizeAsync(userId, policyName))
+            .Returns(Task.FromResult(false));
+
+        AuthorizationBehavior<AdminPolicyQuery, Unit> authBehavior
+            = new(currentUserService: _currentUserService.Object, identityService: _identityService.Object);
 
         // Act
-        var request = authBehavior.Handle(new AdminPolicyQuery(), new CancellationToken(), next: null!);
+        Task<Unit> request = authBehavior.Handle(
+            request: new AdminPolicyQuery(),
+            cancellationToken: new CancellationToken(),
+            next: null!);
 
         // Assert
-        await FluentActions.Invoking(() => request).Should().ThrowAsync<ForbiddenAccessException>();
+        await FluentActions
+            .Invoking(() => request)
+            .Should()
+            .ThrowAsync<ForbiddenAccessException>();
     }
 
     sealed class UnauthorizedQuery : IRequest<Unit>

@@ -2,7 +2,8 @@
 
 namespace OneTimePassGen.Application.UserGeneratedPasswords.Queries.GetUserGeneratedPassword;
 
-internal sealed class GetUserGeneratedPasswordQueryValidator : AbstractValidator<GetUserGeneratedPasswordQuery>
+internal sealed class GetUserGeneratedPasswordQueryValidator
+    : AbstractValidator<GetUserGeneratedPasswordQuery>
 {
     public GetUserGeneratedPasswordQueryValidator()
     {

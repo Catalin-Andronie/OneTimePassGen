@@ -8,8 +8,9 @@ using MediatR;
 
 namespace OneTimePassGen.Application.Common.Behaviors;
 
-public sealed class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IRequest<TResponse>
+public sealed class AuthorizationBehavior<TRequest, TResponse>
+    : IPipelineBehavior<TRequest, TResponse>
+        where TRequest : IRequest<TResponse>
 {
     private readonly ICurrentUserService _currentUserService;
     private readonly IIdentityService _identityService;
@@ -22,9 +23,14 @@ public sealed class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavi
         _identityService = identityService;
     }
 
-    public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+    public async Task<TResponse> Handle(
+        TRequest request,
+        CancellationToken cancellationToken,
+        RequestHandlerDelegate<TResponse> next)
     {
-        var authorizeAttributes = request.GetType().GetCustomAttributes<AuthorizeAttribute>();
+        IEnumerable<AuthorizeAttribute> authorizeAttributes = request
+            .GetType()
+            .GetCustomAttributes<AuthorizeAttribute>();
 
         if (authorizeAttributes.Any())
         {
@@ -35,17 +41,21 @@ public sealed class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavi
             }
 
             // Role-based authorization
-            var authorizeAttributesWithRoles = authorizeAttributes.Where(a => !string.IsNullOrWhiteSpace(a.Roles));
+            IEnumerable<AuthorizeAttribute> authorizeAttributesWithRoles = authorizeAttributes
+                .Where(a => !string.IsNullOrWhiteSpace(a.Roles));
 
             if (authorizeAttributesWithRoles.Any())
             {
-                var authorized = false;
+                bool authorized = false;
 
-                foreach (var roles in authorizeAttributesWithRoles.Select(a => a.Roles.Split(',')))
+                foreach (string[]? roles in authorizeAttributesWithRoles.Select(a => a.Roles.Split(',')))
                 {
-                    foreach (var role in roles)
+                    foreach (string role in roles)
                     {
-                        var isInRole = await _identityService.IsInRoleAsync(_currentUserService.UserId, role.Trim()).ConfigureAwait(false);
+                        bool isInRole = await _identityService
+                            .IsInRoleAsync(_currentUserService.UserId, role.Trim())
+                            .ConfigureAwait(false);
+
                         if (isInRole)
                         {
                             authorized = true;
@@ -62,12 +72,16 @@ public sealed class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavi
             }
 
             // Policy-based authorization
-            var authorizeAttributesWithPolicies = authorizeAttributes.Where(a => !string.IsNullOrWhiteSpace(a.Policy));
+            IEnumerable<AuthorizeAttribute> authorizeAttributesWithPolicies = authorizeAttributes
+                .Where(a => !string.IsNullOrWhiteSpace(a.Policy));
+
             if (authorizeAttributesWithPolicies.Any())
             {
-                foreach (var policy in authorizeAttributesWithPolicies.Select(a => a.Policy))
+                foreach (string? policy in authorizeAttributesWithPolicies.Select(a => a.Policy))
                 {
-                    var authorized = await _identityService.AuthorizeAsync(_currentUserService.UserId, policy).ConfigureAwait(false);
+                    bool authorized = await _identityService
+                        .AuthorizeAsync(_currentUserService.UserId, policy)
+                        .ConfigureAwait(false);
 
                     if (!authorized)
                     {

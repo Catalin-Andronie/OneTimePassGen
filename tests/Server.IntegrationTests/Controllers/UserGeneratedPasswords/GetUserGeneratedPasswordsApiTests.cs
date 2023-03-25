@@ -6,7 +6,8 @@ using Xunit;
 
 namespace OneTimePassGen.Server.IntegrationTests.Controllers.UserGeneratedPasswords;
 
-public sealed class GetUserGeneratedPasswordsApiTests : IClassFixture<OneTimePassGenWebAppFactory>
+public sealed class GetUserGeneratedPasswordsApiTests
+    : IClassFixture<OneTimePassGenWebAppFactory>
 {
     private readonly OneTimePassGenWebAppFactory _factory;
 
@@ -18,9 +19,9 @@ public sealed class GetUserGeneratedPasswordsApiTests : IClassFixture<OneTimePas
     [Fact]
     public async Task GetUserGeneratedPasswordsApi_ReturnsUnauthorizedStatus_ForAnonymousUser()
     {
-        using var client = await _factory.GetAnonymousClientAsync();
+        using HttpClient client = await _factory.GetAnonymousClientAsync();
 
-        var response = await client.GetAsync("api/user-generated-passwords");
+        HttpResponseMessage response = await client.GetAsync("api/user-generated-passwords");
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -28,9 +29,9 @@ public sealed class GetUserGeneratedPasswordsApiTests : IClassFixture<OneTimePas
     [Fact]
     public async Task GetUserGeneratedPasswordsApi_ReturnsSuccessStatus_ForAuthenticatedUser()
     {
-        using var client = await _factory.GetAuthenticatedClientAsync();
+        using HttpClient client = await _factory.GetAuthenticatedClientAsync();
 
-        var response = await client.GetAsync("api/user-generated-passwords");
+        HttpResponseMessage response = await client.GetAsync("api/user-generated-passwords");
 
         response.EnsureSuccessStatusCode();
     }

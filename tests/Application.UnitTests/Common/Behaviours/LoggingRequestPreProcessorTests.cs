@@ -27,11 +27,15 @@ public sealed class LoggingRequestPreProcessorTests
     [Test]
     public async Task LoggingRequestPreProcessor_ShouldCall_GetUserNameAsync_OnceIfAuthenticated()
     {
-        _currentUserService.Setup(x => x.UserId).Returns(Guid.NewGuid().ToString());
+        _currentUserService
+            .Setup(x => x.UserId)
+            .Returns(Guid.NewGuid().ToString());
 
-        var requestLogger = new LoggingRequestPreProcessor<GetUserGeneratedPasswordsQuery>(_logger.Object, _currentUserService.Object, _identityService.Object);
+        LoggingRequestPreProcessor<GetUserGeneratedPasswordsQuery> requestLogger
+            = new(_logger.Object, _currentUserService.Object, _identityService.Object);
 
-        var request = new GetUserGeneratedPasswordsQuery(includeExpiredPasswords: false);
+        GetUserGeneratedPasswordsQuery request = new(includeExpiredPasswords: false);
+
         await requestLogger.Process(request, new CancellationToken());
 
         _identityService.Verify(i => i.GetUserNameAsync(It.IsAny<string>()), Times.Once);
@@ -40,9 +44,11 @@ public sealed class LoggingRequestPreProcessorTests
     [Test]
     public async Task LoggingRequestPreProcessor_ShouldNotCall_GetUserNameAsync_OnceIfUnauthenticated()
     {
-        var requestLogger = new LoggingRequestPreProcessor<GetUserGeneratedPasswordsQuery>(_logger.Object, _currentUserService.Object, _identityService.Object);
+        LoggingRequestPreProcessor<GetUserGeneratedPasswordsQuery> requestLogger
+            = new(_logger.Object, _currentUserService.Object, _identityService.Object);
 
-        var request = new GetUserGeneratedPasswordsQuery(includeExpiredPasswords: false);
+        GetUserGeneratedPasswordsQuery request = new(includeExpiredPasswords: false);
+
         await requestLogger.Process(request, new CancellationToken());
 
         _identityService.Verify(i => i.GetUserNameAsync(It.IsAny<string>()), Times.Never);
