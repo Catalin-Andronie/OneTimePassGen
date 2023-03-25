@@ -41,7 +41,7 @@ public sealed class Testing
         // TODO: For now we only create unique connection strings for SqLite db. Add support for other database types.
         const string configurationName = "ConnectionStrings:DefaultConnection";
         configuration[configurationName] = !string.IsNullOrEmpty(configuration[configurationName])
-            ? SqliteUniqueConnectionString(configuration[configurationName])
+            ? SqliteUniqueConnectionString(configuration[configurationName]!)
             : throw new ApplicationException($"Configuration '{configurationName}' is required");
 
         ServiceCollection services = new();
