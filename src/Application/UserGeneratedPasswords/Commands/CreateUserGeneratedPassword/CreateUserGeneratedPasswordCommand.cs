@@ -1,8 +1,8 @@
-﻿using OneTimePassGen.Application.Common.Interfaces;
-using OneTimePassGen.Domain.Entities;
+﻿using MediatR;
 
-using MediatR;
+using OneTimePassGen.Application.Common.Interfaces;
 using OneTimePassGen.Application.Common.Security;
+using OneTimePassGen.Domain.Entities;
 
 namespace OneTimePassGen.Application.UserGeneratedPasswords.Commands.CreateUserGeneratedPassword;
 #pragma warning disable MA0048 // File name must match type name

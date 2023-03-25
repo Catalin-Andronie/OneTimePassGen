@@ -1,0 +1,46 @@
+name: App-CI
+
+on: [push]
+
+env:
+  buildConfiguration: Release
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+
+    - name: Restore .NET tools
+      run: dotnet tool restore
+
+    - name: Restore dependencies
+      run: dotnet cake --task=restore
+
+    - name: Build solution - $buildConfiguration
+      run: dotnet cake --task=build --configuration=$buildConfiguration --exclusive
+
+    - name: Run unit tests - $buildConfiguration
+      run: dotnet cake --task=unit-tests --configuration=$buildConfiguration --exclusive
+
+    - name: Run integration tests - $buildConfiguration
+      run: dotnet cake --task=integration-tests --configuration=$buildConfiguration --exclusive
+
+    - name: Run acceptance tests - $buildConfiguration
+      run: dotnet cake --task=acceptance-tests --configuration=$buildConfiguration --exclusive
+
+    - name: Publish test reports
+      run: dotnet cake --task=publish-test-reports
+
+    - name: Generate code coverage
+      run: dotnet cake --task=code-coverage
+
+    - name: Publish code coverage reports
+      run: dotnet cake --task=publish-code-coverage-reports

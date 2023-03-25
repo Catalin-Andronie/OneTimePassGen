@@ -68,7 +68,7 @@ void DeleteDirectory(DirectoryPath directory)
 }
 
 Task("clean")
-    .Description("Cleans the artifacts, bin and obj directories.")
+    .Description("Cleans existing artifacts.")
     .Does(() => {
         DeleteDirectory(testsArtifactsDirectory);
 
@@ -104,7 +104,7 @@ Task("unit-tests")
             Configuration = CONFIGURATION,
             NoLogo = true,
             NoRestore = true,
-            NoBuild = true,
+            NoBuild = false,
             ToolTimeout = TimeSpan.FromMinutes(5),
             Blame = true,
             Loggers = new string[] { "trx" },
@@ -218,15 +218,18 @@ Task("code-coverage")
         }
         else if (canShowResults)
         {
-            Information($"Generated coverage results to {coverageIndexFilePath}.");
+            Information($"Generated coverage results to '{coverageIndexFilePath}'.");
             Information($"Using '--open-coverage-results' option the code coverage will open automatically in your default browser.");
         }
     })
     .DeferOnError();
 
 Task("publish-test-reports")
-    .WithCriteria(() => BuildSystem.AzurePipelines.IsRunningOnAzurePipelines)
-    .Description("Publish test reports to Azure Pipelines.")
+    .WithCriteria(() =>
+        BuildSystem.AzurePipelines.IsRunningOnAzurePipelines ||
+        BuildSystem.GitHubActions.IsRunningOnGitHubActions
+    )
+    .Description("Publish test reports to CI.")
     .Does(() => {
         var testResultsFiles = GetFiles($"{testsArtifactsDirectory}/**/*.trx").ToArray();
         if (!testResultsFiles.Any())
@@ -235,19 +238,29 @@ Task("publish-test-reports")
             return;
         }
 
-        BuildSystem.AzurePipelines.Commands.PublishTestResults(
-            new AzurePipelinesPublishTestResultsData {
-                Configuration = CONFIGURATION,
-                TestResultsFiles = testResultsFiles,
-                MergeTestResults = true,
-                TestRunner = AzurePipelinesTestRunnerType.VSTest
-            }
-        );
+        if (BuildSystem.AzurePipelines.IsRunningOnAzurePipelines)
+        {
+            BuildSystem.AzurePipelines.Commands.PublishTestResults(
+                new AzurePipelinesPublishTestResultsData {
+                    Configuration = CONFIGURATION,
+                    TestResultsFiles = testResultsFiles,
+                    MergeTestResults = true,
+                    TestRunner = AzurePipelinesTestRunnerType.VSTest
+                }
+            );
+        }
+        else if (BuildSystem.GitHubActions.IsRunningOnGitHubActions)
+        {
+            Information("TODO: Add support to publish test reports to GitHub.");
+        }
     });
 
 Task("publish-code-coverage-reports")
-    .WithCriteria(() => BuildSystem.AzurePipelines.IsRunningOnAzurePipelines)
-    .Description("Publish code coverage reports to Azure Pipelines.")
+    .WithCriteria(() =>
+        BuildSystem.AzurePipelines.IsRunningOnAzurePipelines ||
+        BuildSystem.GitHubActions.IsRunningOnGitHubActions
+    )
+    .Description("Publish code coverage reports to CI.")
     .Does(() => {
         if (!FileExists($"{coverageArtifactsDirectory}/Cobertura.xml"))
         {
@@ -255,13 +268,20 @@ Task("publish-code-coverage-reports")
             return;
         }
 
-        BuildSystem.AzurePipelines.Commands.PublishCodeCoverage(
-            new AzurePipelinesPublishCodeCoverageData {
-                CodeCoverageTool = AzurePipelinesCodeCoverageToolType.Cobertura,
-                ReportDirectory = $"{coverageArtifactsDirectory}",
-                SummaryFileLocation = $"{coverageArtifactsDirectory}/Cobertura.xml"
-            }
-        );
+        if (BuildSystem.AzurePipelines.IsRunningOnAzurePipelines)
+        {
+            BuildSystem.AzurePipelines.Commands.PublishCodeCoverage(
+                new AzurePipelinesPublishCodeCoverageData {
+                    CodeCoverageTool = AzurePipelinesCodeCoverageToolType.Cobertura,
+                    ReportDirectory = $"{coverageArtifactsDirectory}",
+                    SummaryFileLocation = $"{coverageArtifactsDirectory}/Cobertura.xml"
+                }
+            );
+        }
+        else if (BuildSystem.GitHubActions.IsRunningOnGitHubActions)
+        {
+            Information("TODO: Add support to publish code coverage reports to GitHub.");
+        }
     });
 
 Task("test")

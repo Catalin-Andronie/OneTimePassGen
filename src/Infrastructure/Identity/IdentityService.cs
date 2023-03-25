@@ -1,10 +1,11 @@
-﻿using OneTimePassGen.Application.Common.Interfaces;
-using OneTimePassGen.Application.Common.Models;
+﻿using System.Security.Claims;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
+
+using OneTimePassGen.Application.Common.Interfaces;
+using OneTimePassGen.Application.Common.Models;
 
 namespace OneTimePassGen.Infrastructure.Identity;
 

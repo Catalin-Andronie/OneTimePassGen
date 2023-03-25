@@ -1,10 +1,10 @@
-﻿using OneTimePassGen.Application.Common.Exceptions;
-
-using FluentAssertions;
+﻿using FluentAssertions;
 
 using FluentValidation.Results;
 
 using NUnit.Framework;
+
+using OneTimePassGen.Application.Common.Exceptions;
 
 namespace OneTimePassGen.Application.UnitTests.Common.Exceptions;
 

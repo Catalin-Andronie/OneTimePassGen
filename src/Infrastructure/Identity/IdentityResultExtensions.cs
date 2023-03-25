@@ -1,6 +1,6 @@
-﻿using OneTimePassGen.Application.Common.Models;
+﻿using Microsoft.AspNetCore.Identity;
 
-using Microsoft.AspNetCore.Identity;
+using OneTimePassGen.Application.Common.Models;
 
 namespace OneTimePassGen.Infrastructure.Identity;
 

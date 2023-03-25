@@ -1,6 +1,8 @@
-﻿using OneTimePassGen.Application.Common.Interfaces;
-using MediatR;
+﻿using MediatR;
+
 using Microsoft.EntityFrameworkCore;
+
+using OneTimePassGen.Application.Common.Interfaces;
 using OneTimePassGen.Application.Common.Security;
 using OneTimePassGen.Application.UserGeneratedPasswords.Models;
 using OneTimePassGen.Domain.Entities;

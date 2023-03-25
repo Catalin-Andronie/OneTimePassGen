@@ -1,4 +1,4 @@
-# One-time password generator
+# One-time password generator <!-- omit in toc -->
 
 `One-time password generator` is an web application which allows authenticated users to generate random passwords which expires at an interval of 30 seconds after creation.
 
@@ -22,14 +22,13 @@
 
 ## Prerequisites
 
-- Install latest [NET Core 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0)
-    - Check if *dotnet* is installed by running next command:
+1. Install latest [NET Core 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0), then check if **dotnet** is installed by running next command:
 
     ```cmd
     dotnet --version
     ```
 
-- Restore tools used in development by running next command:
+2. Restore tools used in development by running next command:
 
     ```cli
     dotnet tool restore
@@ -37,13 +36,13 @@
 
 ## Running the solution
 
-- To run the application execute script:
+1. To run the application via `dotnet` execute command and open browser at URL <https://localhost:7010/>:
 
     ```cmd
-    dotnet run --project .\src\Server
+    dotnet run --project ./src/Server
     ```
 
-- Open browser at URL <https://localhost:7056> and login or create a new account.
+2. Open browser at URL <https://localhost:7056> and login or create a new account.
 
 ## Build solution
 
