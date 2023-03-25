@@ -62,6 +62,9 @@ public sealed class UserGeneratedPasswordController : ApiControllerBase
         GetUserGeneratedPasswordQuery getRequest = new(generatedPasswordId, includeExpiredPasswords: false);
         UserGeneratedPasswordItem? userGeneratedPasswordItem = await Mediator.Send(getRequest, cancellationToken);
 
-        return CreatedAtAction(nameof(GetUserPasswordAsync), new { userGeneratedPasswordItem?.Id }, userGeneratedPasswordItem);
+        return CreatedAtAction(
+            actionName: nameof(GetUserPasswordAsync),
+            routeValues: new { userGeneratedPasswordItem?.Id },
+            value: userGeneratedPasswordItem);
     }
 }
