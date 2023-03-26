@@ -179,6 +179,7 @@ Task("code-coverage")
             // "LatexSummary",
             // "lcov",
             "MarkdownSummary",
+            "MarkdownSummaryGithub",
             // "MHtml",
             // "PngChart",
             // "SonarQube",

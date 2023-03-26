@@ -16,7 +16,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 7.x.x
 
     - name: Restore .NET tools
       run: dotnet tool restore
@@ -24,17 +24,17 @@ jobs:
     - name: Restore dependencies
       run: dotnet cake --task=restore
 
-    - name: Build solution - $buildConfiguration
-      run: dotnet cake --task=build --configuration=$buildConfiguration --exclusive
+    - name: Build solution - ${{env.buildConfiguration}}
+      run: dotnet cake --task=build --configuration=${{env.buildConfiguration}} --exclusive
 
-    - name: Run unit tests - $buildConfiguration
-      run: dotnet cake --task=unit-tests --configuration=$buildConfiguration --exclusive
+    - name: Run unit tests - ${{env.buildConfiguration}}
+      run: dotnet cake --task=unit-tests --configuration=${{env.buildConfiguration}} --exclusive
 
-    - name: Run integration tests - $buildConfiguration
-      run: dotnet cake --task=integration-tests --configuration=$buildConfiguration --exclusive
+    - name: Run integration tests - ${{env.buildConfiguration}}
+      run: dotnet cake --task=integration-tests --configuration=${{env.buildConfiguration}} --exclusive
 
-    - name: Run acceptance tests - $buildConfiguration
-      run: dotnet cake --task=acceptance-tests --configuration=$buildConfiguration --exclusive
+    - name: Run acceptance tests - ${{env.buildConfiguration}}
+      run: dotnet cake --task=acceptance-tests --configuration=${{env.buildConfiguration}} --exclusive
 
     - name: Publish test reports
       run: dotnet cake --task=publish-test-reports
@@ -44,3 +44,14 @@ jobs:
 
     - name: Publish code coverage reports
       run: dotnet cake --task=publish-code-coverage-reports
+
+    - name: Find current github PR info
+      uses: jwalton/gh-find-current-pr@v1
+      id: finder
+
+    - name: Add Coverage PR Comment
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        recreate: true
+        number: ${{steps.finder.outputs.pr}}
+        path: artifacts/coverage/SummaryGithub.md
