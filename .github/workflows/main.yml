@@ -24,17 +24,17 @@ jobs:
     - name: Restore dependencies
       run: dotnet cake --task=restore
 
-    - name: Build solution - $buildConfiguration
-      run: dotnet cake --task=build --configuration=$buildConfiguration --exclusive
+    - name: Build solution - ${{env.buildConfiguration}}
+      run: dotnet cake --task=build --configuration=${{env.buildConfiguration}} --exclusive
 
-    - name: Run unit tests - $buildConfiguration
-      run: dotnet cake --task=unit-tests --configuration=$buildConfiguration --exclusive
+    - name: Run unit tests - ${{env.buildConfiguration}}
+      run: dotnet cake --task=unit-tests --configuration=${{env.buildConfiguration}} --exclusive
 
-    - name: Run integration tests - $buildConfiguration
-      run: dotnet cake --task=integration-tests --configuration=$buildConfiguration --exclusive
+    - name: Run integration tests - ${{env.buildConfiguration}}
+      run: dotnet cake --task=integration-tests --configuration=${{env.buildConfiguration}} --exclusive
 
-    - name: Run acceptance tests - $buildConfiguration
-      run: dotnet cake --task=acceptance-tests --configuration=$buildConfiguration --exclusive
+    - name: Run acceptance tests - ${{env.buildConfiguration}}
+      run: dotnet cake --task=acceptance-tests --configuration=${{env.buildConfiguration}} --exclusive
 
     - name: Publish test reports
       run: dotnet cake --task=publish-test-reports
