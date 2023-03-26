@@ -44,3 +44,14 @@ jobs:
 
     - name: Publish code coverage reports
       run: dotnet cake --task=publish-code-coverage-reports
+
+    - name: Find current github PR info
+      uses: jwalton/gh-find-current-pr@v1
+      id: finder
+
+    - name: Add Coverage PR Comment
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        recreate: true
+        number: ${{steps.finder.outputs.pr}}
+        path: artifacts/coverage/SummaryGithub.md
